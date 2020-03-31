@@ -102,7 +102,6 @@
                       enableCollapsibleOptGroups: true,
                       collapseOptGroupsByDefault: true,
                       enableCaseInsensitiveFiltering: true,
-                      enableFullValueFiltering: true
                   }).multiselect('dataprovider', entity_groups);
               });
 
@@ -115,10 +114,7 @@
                       var request_string = generateRequestString(metrics_menu, entities_menu);
                       render_graph(request_string);
 
-                      $('#metrics_menu').multiselect('deselectAll', false);
                       $('#entities_menu').multiselect('deselectAll', false);
-
-                      $('#metrics_menu').multiselect('updateButtonText');
                       $('#entities_menu').multiselect('updateButtonText');
 
                       setTimeout(null, 1000);

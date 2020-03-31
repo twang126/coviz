@@ -5,47 +5,70 @@ from flask import render_template
 from flask import request
 from flask import Response
 
-import api_utils
-import processing_utils
-from covid_dataset import CovidData
+from utils import api_utils
+from utils import processing_utils
+from utils.covid_dataset import CovidData
+
+import time
 
 app = Flask(__name__)
 
-# The international COVID dataset, aggregated per country and state
-# Source: Kaggle
 
-raw_global_df = api_utils.get_international_dataset()
-international_df = processing_utils.post_process_international_df(raw_global_df)
+class Data:
+    def __init__(self):
+        self.raw_global_df = None
+        self.international_df = None
+        self.international_states_df = None
+        self.us_testing_df = None
+        self.us_states_testing_df = None
+        self.us_county_df = None
+        self.CovidDf = None
+        self.last_update = None
 
-international_states_df = processing_utils.post_process_international_states_df(
-    raw_global_df
-)
+        self.set_up()
 
-# US testing dataset
-# Source: https://covidtracking.com/api/
-us_testing_df = processing_utils.post_process_us_testing_df(
-    api_utils.get_historical_us_testing_data()
-)
-us_states_testing_df = processing_utils.post_process_state_testing_df(
-    api_utils.get_historical_states_testing_data()
-)
+    def set_up(self):
+        # The international COVID dataset, aggregated per country and state
+        # Source: Kaggle
+        print("Set up data")
+        self.last_update = time.time()
+        self.raw_global_df = api_utils.get_international_dataset()
+        self.international_df = processing_utils.post_process_international_df(
+            self.raw_global_df
+        )
 
-# Covid data per US county
-# Source: NY Times
-us_county_df = processing_utils.post_process_county_df(
-    api_utils.get_historical_county_level_data()
-)
+        self.international_states_df = processing_utils.post_process_international_states_df(
+            self.raw_global_df
+        )
 
-# Wrapper class for all of the different data sources
-CovidDf = CovidData(
-    [
-        international_df,
-        international_states_df,
-        us_testing_df,
-        us_states_testing_df,
-        us_county_df,
-    ]
-)
+        # US testing dataset
+        # Source: https://covidtracking.com/api/
+        self.us_testing_df = processing_utils.post_process_us_testing_df(
+            api_utils.get_historical_us_testing_data()
+        )
+        self.us_states_testing_df = processing_utils.post_process_state_testing_df(
+            api_utils.get_historical_states_testing_data()
+        )
+
+        # Covid data per US county
+        # Source: NY Times
+        self.us_county_df = processing_utils.post_process_county_df(
+            api_utils.get_historical_county_level_data()
+        )
+
+        # Wrapper class for all of the different data sources
+        self.CovidDf = CovidData(
+            [
+                self.international_df,
+                self.international_states_df,
+                self.us_testing_df,
+                self.us_states_testing_df,
+                self.us_county_df,
+            ]
+        )
+
+
+data = Data()
 
 
 @app.route("/r/process")
@@ -62,7 +85,7 @@ def process():
 
         filter_dict[key] = values
 
-    displayable_data = CovidDf.get_displayable_data(
+    displayable_data = data.CovidDf.get_displayable_data(
         entities=entities, measurements=metrics, filter_dict=filter_dict
     )
 
@@ -75,13 +98,18 @@ def process():
 
 @app.route("/")
 def index():
+    curr_time = time.time()
+
+    if curr_time > 7200 + data.last_update:
+        data.set_up()
+
     return render_template("index.html")
 
 
 @app.route("/r/get_dropdown_options")
 def get_dropdown_options():
     options = {}
-    all_entities = processing_utils.get_all_entities(CovidDf.dataframes)
+    all_entities = processing_utils.get_all_entities(data.CovidDf.dataframes)
     # country_to_state = processing_utils.get_countries_to_states(
     #     raw_global_df, us_states_testing_df
     # )

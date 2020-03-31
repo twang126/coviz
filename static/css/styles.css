@@ -1,69 +1,67 @@
-
- 
 /* AXES */
 /* ticks */
-.axis line{
+.axis line {
     stroke: #706f6f;
     stroke-width: 0.5;
     shape-rendering: crispEdges;
-    }
-    
+}
+
 /* axis contour */
 .axis path {
-stroke: #706f6f;
-stroke-width: 0.7;
-shape-rendering: crispEdges;
+    stroke: #706f6f;
+    stroke-width: 0.7;
+    shape-rendering: crispEdges;
 }
 
 /* axis text */
 .axis text {
-fill: #2b2929;
-font-family: Georgia;
-font-size: 120%;
+    fill: #2b2929;
+    font-family: Georgia;
+    font-size: 120%;
 }
 
 /* LINE CHART */
 .line {
-fill: none;
-stroke: #454545;
-stroke-dasharray: 3;
-stroke-linejoin: round;
-stroke-linecap: round;
-shape-rendering: crispEdges; 
+    fill: none;
+    stroke: #454545;
+    stroke-dasharray: 3;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    shape-rendering: crispEdges;
 }
 
 .ghost-line {
-fill: none;
-stroke: #454545;
-opacity: 0;
-stroke-width: 10;
-stroke-linejoin: round;
-stroke-linecap: round;
-shape-rendering: crispEdges; 
+    fill: none;
+    stroke: #454545;
+    opacity: 0;
+    stroke-width: 10;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    shape-rendering: crispEdges;
 }
 
 .serie_label {
-fill: #454545;
-font-family: Avenir;
-font-size: 125%;
+    fill: #454545;
+    font-family: Avenir;
+    font-size: 100%;
 }
 
 .dot {
     fill: darkgrey;
     stroke-width: 10pt;
     stroke: transparent;
-    border-radius:100%;
-    padding:10px;
+    border-radius: 100%;
+    padding: 10px;
     z-index: 10;
     width: 10px;
-    background-clip:content-box; /* <- key point*/
+    background-clip: content-box;
 }
 
 .title {
     fill: black;
     font-family: Avenir;
-    font-size:24px;
-    text-align: center!important;
+    font-size: 24px;
+    text-align: center !important;
     letter-spacing: 0.05em;
     margin-bottom: 0px;
 }
@@ -72,13 +70,13 @@ font-size: 125%;
     stroke: lightgrey;
     stroke-opacity: 0.7;
     shape-rendering: crispEdges;
-  }
-  
+}
+
 .grid path {
     stroke-width: 0;
-  }
-  
-div.tooltip {	
+}
+
+div.tooltip {
     line-height: 1;
     font-weight: 500;
     padding: 10px;
@@ -91,5 +89,5 @@ div.tooltip {
     font-size: 11px;
     content: "\25BC";
     position: absolute;
-    text-align: center;		
+    text-align: center;
 }
