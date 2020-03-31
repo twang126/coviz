@@ -43,12 +43,25 @@ class Data:
 
         # US testing dataset
         # Source: https://covidtracking.com/api/
-        self.us_testing_df = processing_utils.post_process_us_testing_df(
-            api_utils.get_historical_us_testing_data()
-        )
-        self.us_states_testing_df = processing_utils.post_process_state_testing_df(
-            api_utils.get_historical_states_testing_data()
-        )
+        try:
+            self.us_testing_df = processing_utils.post_process_us_testing_df(
+                api_utils.get_historical_us_testing_data()
+            )
+        except:
+            print("US-wide Experimental failed")
+            self.us_testing_df = processing_utils.stable_post_process_us_testing_df(
+                api_utils.get_historical_us_testing_data()
+            )
+
+        try:
+            self.us_states_testing_df = processing_utils.post_process_state_testing_df(
+                api_utils.get_historical_states_testing_data()
+            )
+        except:
+            print("State-wide Experimental failed")
+            self.us_states_testing_df = processing_utils.stable_post_process_state_testing_df(
+                api_utils.get_historical_states_testing_data()
+            )
 
         # Covid data per US county
         # Source: NY Times
