@@ -216,6 +216,7 @@ def stable_post_process_us_testing_df(df):
 
 
 def post_process_us_testing_df(df):
+    print("US testing columns")
     print(df.columns)
     col_mapping = {
         "date": DATE_COL,
@@ -304,6 +305,8 @@ def stable_post_process_state_testing_df(df):
 
 
 def post_process_state_testing_df(df):
+    print("US state testing columns")
+    print(df.columns)
     col_mapping = {
         "date": DATE_COL,
         "state": STATE_COL,
@@ -315,7 +318,6 @@ def post_process_state_testing_df(df):
         "positiveIncrease": CONFIRMED_COL + DELTA_COL_SUFFIX,
         "negativeIncrease": NEGATIVE_TEST_COL + DELTA_COL_SUFFIX,
         "totalTestResultsIncrease": TOTAL_TEST_COL + DELTA_COL_SUFFIX,
-        "hospitalizedIncrease": HOSPITALIZED_COL + DELTA_COL_SUFFIX,
         "deathIncrease": DEATHS_COL + DELTA_COL_SUFFIX,
         "cumulativeInIcu": ICU_COL,
         "cumulativeOnVentilator": VENTILATOR_COL,
@@ -335,7 +337,7 @@ def post_process_state_testing_df(df):
         df,
         sort_cols=[DATE_COL, STATE_COL],
         diff_group_cols=[STATE_COL],
-        agg_cols=[ICU_COL, VENTILATOR_COL],
+        agg_cols=[ICU_COL, VENTILATOR_COL, HOSPITALIZED_COL],
     )
 
     return add_percent_change(
