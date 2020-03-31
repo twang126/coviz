@@ -11,7 +11,10 @@ class CovidData:
     def __init__(self, dfs):
         self.dataframes = dfs
 
-    def get_displayable_data(self, entities, measurements, filter_dict):
+    def get_date_start(self, threshold_value, threshold_metric, filter_dict):
+        
+
+    def get_displayable_data(self, entities, measurements, filter_dict, threshold_value=None, threshold_metric=None):
         """
         Process a data request to display on a graph.
 
@@ -40,24 +43,25 @@ class CovidData:
 
             for measurement_col in matching_measurement_cols:
                 for entity_col in matching_entity_cols:
-                    grouping_cols = [entity_col, processing_utils.DATE_COL]
+                    if threshold_metric is None or threshold_metric != measurement_col:
+                        grouping_cols = [entity_col, processing_utils.DATE_COL]
 
-                    if entity_col in filter_dict:
-                        if filter_dict[entity_col] != ["ALL"]:
-                            df = df[df[entity_col].isin(filter_dict[entity_col])]
+                        if entity_col in filter_dict:
+                            if filter_dict[entity_col] != ["ALL"]:
+                                df = df[df[entity_col].isin(filter_dict[entity_col])]
 
-                    aggregated_df = processing_utils.agg_df(
-                        df, group_cols=grouping_cols, agg_col=measurement_col
-                    )
+                        aggregated_df = processing_utils.agg_df(
+                            df, group_cols=grouping_cols, agg_col=measurement_col
+                        )
 
-                    aggregated_df = aggregated_df.rename(
-                        columns={
-                            entity_col: processing_utils.ENTITY_COL,
-                            measurement_col: processing_utils.MEASUREMENT_COL,
-                        }
-                    )
+                        aggregated_df = aggregated_df.rename(
+                            columns={
+                                entity_col: processing_utils.ENTITY_COL,
+                                measurement_col: processing_utils.MEASUREMENT_COL,
+                            }
+                        )
 
-                    results[measurement_col].append(aggregated_df)
+                        results[measurement_col].append(aggregated_df)
 
         combined_results = {}
         for measurement, dataframes in results.items():
@@ -77,16 +81,3 @@ class CovidData:
                     )
 
         return combined_results
-
-    def get_cols(self, cols, make_unique):
-        results = {col: [] for col in cols}
-
-        for col in cols:
-            for df in self.dataframes:
-                if col in df.columns:
-                    if make_unique:
-                        results[col] += list(df[col].unique())
-                    else:
-                        results[col] += list(df[col])
-
-        return results
