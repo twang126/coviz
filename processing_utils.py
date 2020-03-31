@@ -11,10 +11,10 @@ COUNTY_COL = "County"
 NEGATIVE_TEST_COL = "Negative Tests"
 TOTAL_TEST_COL = "Total Tests"
 HOSPITALIZED_COL = "Hospitalized"
-DELTA_COL_SUFFIX = " Delta"
+DELTA_COL_SUFFIX = " Daily Increase"
 ENTITY_COL = "Entity"
 MEASUREMENT_COL = "Metric"
-DELTA_PERCENT_COL_SUFFIX = " Delta(%)"
+DELTA_PERCENT_COL_SUFFIX = " Daily Increase(%)"
 
 
 MEASUREMENT_COLS = [

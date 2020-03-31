@@ -54,6 +54,7 @@ font-size: 125%;
     stroke: transparent;
     border-radius:100%;
     padding:10px;
+    z-index: 10;
     width: 10px;
     background-clip:content-box; /* <- key point*/
 }
