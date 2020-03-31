@@ -67,7 +67,6 @@ jQuery(document).ready(function ($) {
         if ((metrics_menu != null) && (entities_menu != null)) {
             var request_string = generateRequestString(metrics_menu, entities_menu);
             render_graph(request_string);
-            setTimeout(null, 1000);
         }
     });
 

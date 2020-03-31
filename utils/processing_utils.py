@@ -26,8 +26,8 @@ MEASUREMENT_COLS = [
     NEGATIVE_TEST_COL,
     TOTAL_TEST_COL,
     HOSPITALIZED_COL,
-    ICU_COL,
-    VENTILATOR_COL,
+    # ICU_COL,
+    # VENTILATOR_COL,
 ]
 
 METRIC_DELTA_COLS = [col + DELTA_COL_SUFFIX for col in MEASUREMENT_COLS]
@@ -195,7 +195,7 @@ def stable_post_process_us_testing_df(df):
     }
 
     df = df.rename(columns=col_mapping)
-    df[COUNTRY_COL] = "US"
+    df[COUNTRY_COL] = "United States"
     df[DATE_COL] = df[DATE_COL].astype(str)
     df[DATE_COL] = df[DATE_COL].apply(
         lambda d: datetime.datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")
@@ -237,7 +237,7 @@ def post_process_us_testing_df(df):
 
     df = df.rename(columns=col_mapping)
 
-    df[COUNTRY_COL] = "US"
+    df[COUNTRY_COL] = "United States"
     df[DATE_COL] = df[DATE_COL].astype(str)
     df[DATE_COL] = df[DATE_COL].apply(
         lambda d: datetime.datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")

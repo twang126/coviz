@@ -47,8 +47,10 @@ class Data:
             self.us_testing_df = processing_utils.post_process_us_testing_df(
                 api_utils.get_historical_us_testing_data()
             )
-        except:
+        except Exception as e:
             print("US-wide Experimental failed")
+            print(e)
+
             self.us_testing_df = processing_utils.stable_post_process_us_testing_df(
                 api_utils.get_historical_us_testing_data()
             )
@@ -57,8 +59,9 @@ class Data:
             self.us_states_testing_df = processing_utils.post_process_state_testing_df(
                 api_utils.get_historical_states_testing_data()
             )
-        except:
+        except Exception as e:
             print("State-wide Experimental failed")
+            print(e)
             self.us_states_testing_df = processing_utils.stable_post_process_state_testing_df(
                 api_utils.get_historical_states_testing_data()
             )
