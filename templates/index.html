@@ -15,9 +15,10 @@
     <meta property="og:description" content="Explore and graph all of the world's available reliable data on the novel coronavirus."/>
     <meta property="og:url" content="https://coronaviz19.herokuapp.com/">
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://github.com/twang126/coviz/blob/master/static/images/header.png"/>
-    <link rel="icon" href="favicon_io/favicon.ico" type="image/ico"/>
-    <link rel="shortcut icon" href="favicon_io/favicon.ico" type="image/x-icon"/>
+    <meta property="og:image" content="https://raw.githubusercontent.com/twang126/coviz/master/static/images/header.png"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+
 
     <meta charset="utf-8">
       <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
