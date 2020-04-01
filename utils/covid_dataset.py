@@ -12,7 +12,7 @@ class CovidData:
         self.dataframes = dfs
 
     def get_scaled_dataframes(self, threshold_value, threshold_metric, filter_dict):
-        df_to_entity_to_min_date = {}
+        entity_type_to_entity_to_min_date = {}
 
         global_min_date = None
         date_serialized_dataframes = []
@@ -27,12 +27,9 @@ class CovidData:
             date_serialized_dataframes.append(new_df)
 
         for i, df in enumerate(date_serialized_dataframes):
-            df_to_entity_to_min_date[i] = {}
-
             if threshold_metric in df.columns:
                 for entity_type, values in filter_dict.items():
                     if entity_type in df.columns:
-                        df_to_entity_to_min_date[i][entity_type] = {}
                         for entity_definition in values:
                             matching_rows = df[
                                 (df[entity_type] == entity_definition)
@@ -50,29 +47,56 @@ class CovidData:
                                 ):
                                     global_min_date = this_min
 
-                                df_to_entity_to_min_date[i][entity_type][
+                                if entity_type not in entity_type_to_entity_to_min_date:
+                                    entity_type_to_entity_to_min_date[entity_type] = {}
+
+                                if (
                                     entity_definition
-                                ] = this_min
+                                    not in entity_type_to_entity_to_min_date[
+                                        entity_type
+                                    ]
+                                ):
+                                    entity_type_to_entity_to_min_date[entity_type][
+                                        entity_definition
+                                    ] = this_min
+                                else:
+                                    prev_min = entity_type_to_entity_to_min_date[
+                                        entity_type
+                                    ][entity_definition]
+
+                                    if this_min < prev_min:
+                                        entity_type_to_entity_to_min_date[entity_type][
+                                            entity_definition
+                                        ] = this_min
 
         if global_min_date is None:
             return []
 
         filtered_dfs = []
         for i, df in enumerate(date_serialized_dataframes):
-            entities_to_entity_to_min_date = df_to_entity_to_min_date[i]
             filtered_df = df
             filtered_df = filtered_df[
                 filtered_df[processing_utils.DATE_COL] >= global_min_date
             ]
 
-            if len(entities_to_entity_to_min_date) > 0:
-                scaled_dfs = []
-                for (
-                    entity_col,
-                    entity_def_dict,
-                ) in entities_to_entity_to_min_date.items():
-                    for entity_def, min_date in entity_def_dict.items():
-                        scaled_df = filtered_df[filtered_df[entity_col] == entity_def]
+            scaled_dfs = []
+
+            for entity_type, entity_defs in entity_type_to_entity_to_min_date.items():
+                for entity_def, min_date in entity_defs.items():
+                    if entity_type in filtered_df.columns:
+                        scaled_df = filtered_df[filtered_df[entity_type] == entity_def]
+                        scaled_df = scaled_df[
+                            scaled_df[processing_utils.DATE_COL] >= min_date
+                        ]
+
+                        if threshold_metric in scaled_df.columns:
+                            scaled_df = scaled_df[
+                                scaled_df[threshold_metric] >= threshold_value
+                            ]
+
+                        if len(scaled_df) < 0:
+                            continue
+
                         days_scale = min_date - global_min_date
 
                         scaled_df[processing_utils.DATE_COL] = scaled_df[
@@ -80,16 +104,15 @@ class CovidData:
                         ].apply(lambda d: d - days_scale)
                         scaled_dfs.append(scaled_df)
 
-                filtered_df = pd.concat(scaled_dfs)
-
-            filtered_dfs.append(filtered_df)
+            if len(scaled_dfs) > 0:
+                filtered_dfs.append(pd.concat(scaled_dfs))
 
         for i, df in enumerate(filtered_dfs):
             if processing_utils.DATE_COL in df.columns:
                 re_written_df = df
                 re_written_df[processing_utils.DATE_COL] = re_written_df[
                     processing_utils.DATE_COL
-                ].apply(lambda x: str(x))
+                ].apply(lambda x: x.strftime("%Y-%m-%d"))
                 filtered_dfs[i] = re_written_df
 
         return filtered_dfs
@@ -118,10 +141,18 @@ class CovidData:
             Each dataframe will have 3 columns:
             [Date, Entity, Metric]
         """
+        dfs_to_use = self.dataframes
+
+        if threshold_value is not None and threshold_metric is not None:
+            dfs_to_use = self.get_scaled_dataframes(
+                threshold_value=threshold_value,
+                threshold_metric=threshold_metric,
+                filter_dict=filter_dict,
+            )
 
         results = {col: [] for col in measurements}
 
-        for df in self.dataframes:
+        for df in dfs_to_use:
             matching_entity_cols = [col for col in entities if col in df.columns]
 
             matching_measurement_cols = [
@@ -130,25 +161,24 @@ class CovidData:
 
             for measurement_col in matching_measurement_cols:
                 for entity_col in matching_entity_cols:
-                    if threshold_metric is None or threshold_metric != measurement_col:
-                        grouping_cols = [entity_col, processing_utils.DATE_COL]
+                    grouping_cols = [entity_col, processing_utils.DATE_COL]
 
-                        if entity_col in filter_dict:
-                            if filter_dict[entity_col] != ["ALL"]:
-                                df = df[df[entity_col].isin(filter_dict[entity_col])]
+                    if entity_col in filter_dict:
+                        if filter_dict[entity_col] != ["ALL"]:
+                            df = df[df[entity_col].isin(filter_dict[entity_col])]
 
-                        aggregated_df = processing_utils.agg_df(
-                            df, group_cols=grouping_cols, agg_col=measurement_col
-                        )
+                    aggregated_df = processing_utils.agg_df(
+                        df, group_cols=grouping_cols, agg_col=measurement_col
+                    )
 
-                        aggregated_df = aggregated_df.rename(
-                            columns={
-                                entity_col: processing_utils.ENTITY_COL,
-                                measurement_col: processing_utils.MEASUREMENT_COL,
-                            }
-                        )
+                    aggregated_df = aggregated_df.rename(
+                        columns={
+                            entity_col: processing_utils.ENTITY_COL,
+                            measurement_col: processing_utils.MEASUREMENT_COL,
+                        }
+                    )
 
-                        results[measurement_col].append(aggregated_df)
+                    results[measurement_col].append(aggregated_df)
 
         combined_results = {}
         for measurement, dataframes in results.items():

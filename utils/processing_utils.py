@@ -146,7 +146,7 @@ def post_process_international_df(df):
     )
 
 
-def post_process_international_states_df(df):
+def post_process_international_states_df(df, international_post_processed):
     col_mapping = {
         "Date": DATE_COL,
         "Country/Region": COUNTRY_COL,
@@ -158,6 +158,10 @@ def post_process_international_states_df(df):
 
     renamed_df = df.rename(columns=col_mapping)
     renamed_df = renamed_df[renamed_df[COUNTRY_COL] != "US"]
+
+    countries = set(international_post_processed[COUNTRY_COL].unique())
+    renamed_df = renamed_df[~renamed_df[STATE_COL].isin(countries)]
+
     renamed_df = agg_df(
         renamed_df,
         group_cols=[DATE_COL, STATE_COL],

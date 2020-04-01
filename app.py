@@ -38,7 +38,7 @@ class Data:
         )
 
         self.international_states_df = processing_utils.post_process_international_states_df(
-            self.raw_global_df
+            self.raw_global_df, self.international_df
         )
 
         # US testing dataset
@@ -92,6 +92,8 @@ def process():
     entities = request.args.get("entity", type=str, default="").split(",")
     metrics = request.args.get("metric", type=str, default="").split(",")
     filters = request.args.get("filters", type=str, default="ALL").split("_")
+    threshold_value = request.args.get("val", type=float, default=None)
+    threshold_metric = request.args.get("m", type=str, default=None)
 
     filter_dict = {}
     for filter_str in filters:
@@ -102,8 +104,14 @@ def process():
         filter_dict[key] = values
 
     displayable_data = data.CovidDf.get_displayable_data(
-        entities=entities, measurements=metrics, filter_dict=filter_dict
+        entities=entities,
+        measurements=metrics,
+        filter_dict=filter_dict,
+        threshold_metric=threshold_metric,
+        threshold_value=threshold_value,
     )
+
+    print(displayable_data)
 
     response_json = {}
     for k, v in displayable_data.items():

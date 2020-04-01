@@ -12,7 +12,7 @@
   <head>
     <meta property="og:site_name" content="Coviz-19"/>
     <meta property="og:title" content="nCOVID-19 Data Exploratory Tool"/>
-    <meta property="og:description" content="Plot and explore any combination of Covid-19 metrics and locations. Backed by all of the world's available, most reliable data."/>
+    <meta property="og:description" content="A comprehensive tool to plot and explore any combination of Covid-19 metrics and locations. Backed by all of the world's available, most reliable data."/>
     <meta property="og:url" content="https://coronaviz19.herokuapp.com/">
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://i.imgur.com/rm14BZI.png"/>
@@ -49,6 +49,10 @@
               </select>
               <label for="entities_menu" style="padding-left: 15px;">Locations</label>
               <select id="entities_menu" multiple="multiple"></select>
+              <label for="threshold_value" style="padding-left: 15px;">(Optional) Overlay graphs at value of:</label>
+              <input type="number" step="0.01" id="threshold_value" placeholder="Threshold Value"></select>              
+              <label for="threshold_metrics">for metric:</label>
+              <select size="2" id="threshold_metrics"></select>
               <input id="graph_action" type="button" class="btn btn-default" value="Plot">
           </form>
       </div>

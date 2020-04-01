@@ -28,6 +28,13 @@ jQuery(document).ready(function ($) {
             maxHeight: 350
         }).multiselect('dataprovider', metric_options);
 
+        $('#threshold_metrics').multiselect({
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            enableFullValueFiltering: true,
+            maxHeight: 350
+        }).multiselect('dataprovider', metric_options);
+
         var entity_groups = []
         Object.keys(data.Entity).forEach(function (key) {
             var group = {
@@ -63,9 +70,11 @@ jQuery(document).ready(function ($) {
 
         var metrics_menu = $('#metrics_menu').val();
         var entities_menu = $('#entities_menu').val();
+        var threshold_value = $('#threshold_value').val()
+        var threshold_metric = $('#threshold_metrics').val();
 
         if ((metrics_menu != null) && (entities_menu != null)) {
-            var request_string = generateRequestString(metrics_menu, entities_menu);
+            var request_string = generateRequestString(metrics_menu, entities_menu, threshold_value, threshold_metric);
             render_graph(request_string);
         }
     });
@@ -73,7 +82,7 @@ jQuery(document).ready(function ($) {
 
 })
 
-function generateRequestString(metrics_val, entities_val) {
+function generateRequestString(metrics_val, entities_val, threshold_value, threshold_metric) {
     var metric_string = "metric=";
     metrics_val.forEach((val, index) => {
         if (index == 0) {
@@ -135,6 +144,10 @@ function generateRequestString(metrics_val, entities_val) {
 
     var requestString = "/r/process?" + entity_string + "&" + metric_string + "&" + filter_string
 
+    if (threshold_value != null && threshold_metric != null) {
+        requestString = requestString + "&val=" + threshold_value + "&m=" + threshold_metric
+    }
+
     return requestString;
 }
 //------------------------1. PREPARATION------------------------//
@@ -166,24 +179,27 @@ const xAxis = d3.axisBottom().scale(xScale);
 const yAxis = d3.axisLeft().scale(yScale);
 
 function getColorForMetric(metric) {
-    if (metric == 'Confirmed') {
-        return "olivedrab";
-    } else if (metric == 'Deaths') {
-        return "darkred";
-    } else if (metric == 'Hospitalized') {
-        return "steelblue";
+    var blue_hue = 240;
+    var red_hue = 0;
+    var green_hue = 120;
+
+    if (metric.includes('Confirmed')) {
+        return getRandomHueOfColor(blue_hue);
+    } else if (metric.includes('Deaths')) {
+        return getRandomHueOfColor(red_hue);
+    } else if (metric.includes('Hospitalized')){
+        return getRandomHueOfColor(green_hue);
     } else {
-        if (metric.includes("Confirmed")) {
-            return "limegreen";
-        } else if (metric.includes("Deaths")) {
-            return "lightcoral";
-        } else {
-            return "skyblue";
-        }
+        return getRandomHueOfColor(300);
     }
 }
 
-
+function getRandomHueOfColor(hue) {
+    s = Math.floor(Math.random() * 100);
+    l = Math.floor(Math.random() * 100);
+    var color = 'hsl(' + hue + ', ' + s + '%, ' + l + '%)';
+    return color;
+}
 // gridlines in x axis function
 function make_x_gridlines() {
     return d3.axisBottom(xScale)
