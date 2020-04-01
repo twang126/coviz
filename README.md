@@ -1,7 +1,12 @@
 # Set Up
-### This project requires python3 or later.
+##### Note: this project assumes a default python version of 3 or later. It has not been tested on any 2.x distribution.
 
 ### Install Python packages:
 `pip install -r requirements.txt` 
 
-### Install pre-commit 
+### Install and run pre-commit 
+`pip install pre-commit`  
+`pre-commit run --all-files`
+
+### Run the app
+`streamlit run Covisualize.py`
