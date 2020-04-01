@@ -167,7 +167,7 @@ svg.append("text")
     .attr("x", width / 2)
     .attr("y", 0 - (margin.top / 2))
     .attr("text-anchor", "middle")
-    .text("Covid-19 Visualizations");
+    .text("Covid-19 Visualizer");
 
 const xScale = d3.scaleTime().range([0, width]);
 const yScale = d3.scaleLinear().rangeRound([height, 0]);
