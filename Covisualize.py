@@ -33,7 +33,7 @@ open_graph_style = """
     <link rel="icon" href="static/favicon/favicon.ico">
 """
 
-""" Hide annoying built-in Streamlit HTML """
+### Hide annoying built-in Streamlit HTML ###
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
@@ -57,11 +57,11 @@ curr_time = get_hours_from_epoch()
 st.title("nCOVID-19 Visualizer")
 data, dropdown_options = load_data(curr_time)
 
-""" Build a placeholder cell """
+### Build a placeholder cell ###
 graph_cell = st.empty()
 graph_cell.altair_chart(graphing.build_placeholder_chart())
 
-""" Set up the side bar """
+### Set up the side bar ###
 metrics_selector = st.sidebar.multiselect(
     "Metrics", dropdown_options[processing_utils.MEASUREMENT_COL], default=[]
 )
@@ -81,7 +81,7 @@ counties = st.sidebar.multiselect(
     default=None,
 )
 
-""" Upon the 'plot' button being pressed, plot the graph if the parameters are valid """
+### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
 if st.sidebar.button("Plot"):
     request = data_fetcher.generate_data_fetch_request(
         metrics_selector, countries, states, counties
