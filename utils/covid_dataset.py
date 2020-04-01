@@ -193,8 +193,6 @@ class CovidData:
                         concat_df[processing_utils.ENTITY_COL] == entity
                     ][[processing_utils.DATE_COL, processing_utils.MEASUREMENT_COL]]
 
-                    combined_results[measurement][entity] = relevant_rows.to_dict(
-                        orient="list"
-                    )
+                combined_results[measurement] = concat_df
 
         return combined_results

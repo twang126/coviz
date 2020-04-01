@@ -1,6 +1,8 @@
 import datetime
 import numpy as np
 
+CATEGORY_GRAPHING_COL = "Data"
+
 DATE_COL = "Date"
 DEATHS_COL = "Deaths"
 CONFIRMED_COL = "Confirmed"
@@ -13,7 +15,7 @@ TOTAL_TEST_COL = "Total Tests"
 HOSPITALIZED_COL = "Hospitalized"
 DELTA_COL_SUFFIX = " Daily Increase"
 ENTITY_COL = "Entity"
-MEASUREMENT_COL = "Metric"
+MEASUREMENT_COL = "Value"
 DELTA_PERCENT_COL_SUFFIX = " Daily Increase(%)"
 ICU_COL = "In ICU"
 VENTILATOR_COL = "On Ventilator"
@@ -214,8 +216,8 @@ def stable_post_process_us_testing_df(df):
 
 
 def post_process_us_testing_df(df):
-    print("US testing columns")
-    print(df.columns)
+    # print("US testing columns")
+    # print(df.columns)
     col_mapping = {
         "date": DATE_COL,
         "state": STATE_COL,
@@ -293,8 +295,8 @@ def stable_post_process_state_testing_df(df):
 
 
 def post_process_state_testing_df(df):
-    print("US state testing columns")
-    print(df.columns)
+    # print("US state testing columns")
+    # print(df.columns)
     col_mapping = {
         "date": DATE_COL,
         "state": STATE_COL,
