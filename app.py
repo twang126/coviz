@@ -111,6 +111,8 @@ def process():
         threshold_value=threshold_value,
     )
 
+    print(displayable_data)
+
     response_json = {}
     for k, v in displayable_data.items():
         response_json[k] = json.dumps(displayable_data[k])
