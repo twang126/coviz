@@ -123,7 +123,9 @@ def post_process_international_df(df):
     }
 
     renamed_df = df.rename(columns=col_mapping)
-    renamed_df = renamed_df[renamed_df[COUNTRY_COL] != "US"]
+    renamed_df[COUNTRY_COL] = renamed_df[COUNTRY_COL].apply(
+        lambda r: "United States" if r == "US" else r
+    )
 
     renamed_df = agg_df(
         renamed_df,
@@ -186,16 +188,12 @@ def post_process_international_states_df(df, international_post_processed):
 def stable_post_process_us_testing_df(df):
     col_mapping = {
         "date": DATE_COL,
-        "positive": CONFIRMED_COL,
         "negative": NEGATIVE_TEST_COL,
         "totalTestResults": TOTAL_TEST_COL,
         "hospitalized": HOSPITALIZED_COL,
-        "death": DEATHS_COL,
-        "positiveIncrease": CONFIRMED_COL + DELTA_COL_SUFFIX,
         "negativeIncrease": NEGATIVE_TEST_COL + DELTA_COL_SUFFIX,
         "totalTestResultsIncrease": TOTAL_TEST_COL + DELTA_COL_SUFFIX,
         "hospitalizedIncrease": HOSPITALIZED_COL + DELTA_COL_SUFFIX,
-        "deathIncrease": DEATHS_COL + DELTA_COL_SUFFIX,
     }
 
     df = df.rename(columns=col_mapping)
@@ -205,18 +203,14 @@ def stable_post_process_us_testing_df(df):
         lambda d: datetime.datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")
     )
 
-    return add_percent_change(
+    df = add_percent_change(
         df,
         sort_cols=[DATE_COL],
         diff_group_cols=[COUNTRY_COL],
-        agg_cols=[
-            NEGATIVE_TEST_COL,
-            CONFIRMED_COL,
-            DEATHS_COL,
-            TOTAL_TEST_COL,
-            HOSPITALIZED_COL,
-        ],
+        agg_cols=[NEGATIVE_TEST_COL, TOTAL_TEST_COL, HOSPITALIZED_COL,],
     )
+
+    return df
 
 
 def post_process_us_testing_df(df):
@@ -226,15 +220,11 @@ def post_process_us_testing_df(df):
         "date": DATE_COL,
         "state": STATE_COL,
         "negative": NEGATIVE_TEST_COL,
-        "positive": CONFIRMED_COL,
-        "deaths": DEATHS_COL,
         "cumulativeHospitalized": HOSPITALIZED_COL,
         "totalTestResults": TOTAL_TEST_COL,
-        "positiveIncrease": CONFIRMED_COL + DELTA_COL_SUFFIX,
         "negativeIncrease": NEGATIVE_TEST_COL + DELTA_COL_SUFFIX,
         "totalTestResultsIncrease": TOTAL_TEST_COL + DELTA_COL_SUFFIX,
         "hospitalizedIncrease": HOSPITALIZED_COL + DELTA_COL_SUFFIX,
-        "deathIncrease": DEATHS_COL + DELTA_COL_SUFFIX,
         "currentlyInIcu": ICU_COL,
         "cumulativeOnVentilator": VENTILATOR_COL,
     }
@@ -258,13 +248,7 @@ def post_process_us_testing_df(df):
         added_deltas,
         sort_cols=[DATE_COL],
         diff_group_cols=[COUNTRY_COL],
-        agg_cols=[
-            NEGATIVE_TEST_COL,
-            CONFIRMED_COL,
-            DEATHS_COL,
-            TOTAL_TEST_COL,
-            HOSPITALIZED_COL,
-        ],
+        agg_cols=[NEGATIVE_TEST_COL, TOTAL_TEST_COL, HOSPITALIZED_COL,],
     )
 
 
@@ -411,9 +395,12 @@ def add_percent_change(df, sort_cols, diff_group_cols, agg_cols):
     for agg_col_name in agg_cols:
         delta_col_name = agg_col_name + DELTA_PERCENT_COL_SUFFIX
 
-        sorted_df[delta_col_name] = sorted_df.groupby(diff_group_cols)[
-            agg_col_name
-        ].pct_change()
+        if len(diff_group_cols) == 0:
+            sorted_df[delta_col_name] = sorted_df[agg_col_name].pct_change()
+        else:
+            sorted_df[delta_col_name] = sorted_df.groupby(diff_group_cols)[
+                agg_col_name
+            ].pct_change()
 
         sorted_df[delta_col_name] = (
             sorted_df[delta_col_name]

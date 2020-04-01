@@ -179,27 +179,23 @@ const xAxis = d3.axisBottom().scale(xScale);
 const yAxis = d3.axisLeft().scale(yScale);
 
 function getColorForMetric(metric) {
-    var blue_hue = 240;
-    var red_hue = 0;
-    var green_hue = 120;
-
-    if (metric.includes('Confirmed')) {
-        return getRandomHueOfColor(blue_hue);
-    } else if (metric.includes('Deaths')) {
-        return getRandomHueOfColor(red_hue);
-    } else if (metric.includes('Hospitalized')){
-        return getRandomHueOfColor(green_hue);
+    if (metric == 'Confirmed') {
+        return "olivedrab";
+    } else if (metric == 'Deaths') {
+        return "darkred";
+    } else if (metric == 'Hospitalized') {
+        return "steelblue";
     } else {
-        return getRandomHueOfColor(300);
+        if (metric.includes("Confirmed")) {
+            return "limegreen";
+        } else if (metric.includes("Deaths")) {
+            return "lightcoral";
+        } else {
+            return "skyblue";
+        }
     }
 }
 
-function getRandomHueOfColor(hue) {
-    s = Math.floor(Math.random() * 100);
-    l = Math.floor(Math.random() * 100);
-    var color = 'hsl(' + hue + ', ' + s + '%, ' + l + '%)';
-    return color;
-}
 // gridlines in x axis function
 function make_x_gridlines() {
     return d3.axisBottom(xScale)
@@ -264,7 +260,6 @@ function render_graph(endpoint) {
                     .tickSize(-width)
                     .tickFormat("")
                 )
-
 
 
             var min_date;
