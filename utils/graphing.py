@@ -54,8 +54,10 @@ def build_chart(source):
     )
 
     # Put the five layers into a chart and bind the data
-    chart = alt.layer(line, selectors, points, rules, text).properties(
-        width=750, height=600
+    chart = (
+        alt.layer(line, selectors, points, rules, text)
+        .properties(width=750, height=600)
+        .interactive()
     )
 
     return chart
