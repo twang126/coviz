@@ -28,7 +28,7 @@ hide_streamlit_style = """
 open_graph_style = """
 <head>
     <meta property="og:site_name" content="Coviz-19"/>
-    <meta property="og:title" content="The nCovid Analysis Project"/>
+    <meta property="og:title" content="The Covid Analysis Project"/>
     <meta property="og:description" content="A comprehensive tool to plot and explore any combination of Covid-19 metrics and locations. Backed by all of the world's available, most reliable data."/>
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://i.imgur.com/rm14BZI.png"/>
@@ -62,16 +62,16 @@ curr_time = get_hours_from_epoch()
 
 streamlit_ui.add_header_and_title(st)
 
-if st.checkbox("View Instructions"):
+if st.checkbox("View Usage Guide"):
     streamlit_ui.load_instructions(st)
 
 data, dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
-st.markdown("""### nCovid-19 Visualizer """)
+st.markdown("""### Graph ### """)
 graph_cell = st.empty()
 
-st.header("Data")
+st.markdown("""### Data ### """)
 data_cell = st.empty()
 
 ### Set up the side bar ###
@@ -88,14 +88,14 @@ states_selector = st.sidebar.empty()
 
 counties_selector = st.sidebar.empty()
 
-st.sidebar.markdown("""### Overlay (Optional):""")
+st.sidebar.markdown("""### Overlay (optional):""")
 
 overlay_box = st.sidebar.empty()
 overlay_metric_selector = st.sidebar.empty()
 overlay_threshold_box = st.sidebar.empty()
 
 
-plot_button = st.sidebar.button("Execute Query")
+plot_button = st.sidebar.button("Execute query")
 reset_button = st.sidebar.button("Reset")
 graph_alerts_cell = st.sidebar.empty()
 
@@ -135,7 +135,7 @@ counties = counties_selector.multiselect(
     key=state.key,
 )
 
-overlay_checkbox = overlay_box.checkbox("Apply overlay")
+overlay_checkbox = overlay_box.checkbox("Enable overlay")
 
 if overlay_checkbox:
     overlay_metric = overlay_metric_selector.selectbox(
@@ -193,7 +193,7 @@ if plot_button:
                 st.header("Descriptive statistics for rate of change metrics")
 
                 for entity, metric_to_plot in all_plots.items():
-                    st.subheader("Entity: " + entity)
+                    st.markdown("Entity: " + entity)
 
                     for metric, stats_dict in metric_to_plot.items():
                         st.markdown("Metric: " + metric)
@@ -203,10 +203,12 @@ if plot_button:
                 st.header("Raw data tables")
 
                 for entity, metric_to_dataframe in all_dataframes.items():
-                    st.subheader("Entity: " + entity)
+                    st.subheader(entity)
 
                     for metric, df in metric_to_dataframe.items():
-                        st.markdown("Metric: " + metric)
+                        df = df.rename(
+                            columns={processing_utils.MEASUREMENT_COL: metric}
+                        )
                         st.write(df)
 
     if not successfully_updated_chart:

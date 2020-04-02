@@ -5,7 +5,7 @@ import altair as alt
 
 
 def add_header_and_title(st):
-    st.title("The nCovid Analysis Project")
+    st.title("The COVID Analysis Project")
     st.markdown(
         """Authors: [Tim Wang](https://www.timothyxwang.com) & [Anurag Pradhan](https://www.linkedin.com/in/anuragpradhan2016) | [Github](https://github.com/twang126/coviz)"""
     )
@@ -16,7 +16,7 @@ def add_header_and_title(st):
         many existing visualizations can only operate on subsets of this data, not the whole. We have started this project to attempt to consolidate
         all of these different datasets under one common schema and facilitate analytics on all of the world's available, reliable data on the virus.
 
-        The **nCovid Analysis Project** has two main goals:  
+        The **COVID Analysis Project** has two main goals:  
         &ensp;&ensp;1. Create a central repository and schema for all of the reliable data reported in the world  
         &ensp;&ensp;2. Allow for queries and visualizations against this data  
 
@@ -25,7 +25,7 @@ def add_header_and_title(st):
 
 
 def load_instructions(st):
-    st.subheader("Usage Guide")
+    st.subheader("Instructions")
 
     st.markdown(
         """
