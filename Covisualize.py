@@ -26,19 +26,20 @@ hide_streamlit_style = """
 """
 
 open_graph_style = """
+<head>
     <meta property="og:site_name" content="Coviz-19"/>
-    <meta property="og:title" content="nCOVID-19 Data Exploratory Tool"/>
+    <meta property="og:title" content="The nCovid Analysis Project"/>
     <meta property="og:description" content="A comprehensive tool to plot and explore any combination of Covid-19 metrics and locations. Backed by all of the world's available, most reliable data."/>
-    <meta property="og:url" content="https://coronaviz19.herokuapp.com/">
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://i.imgur.com/rm14BZI.png"/>
     <link rel="shortcut icon" href="static/favicon/favicon.ico">
     <link rel="icon" href="static/favicon/favicon.ico">
+</head>
 """
 
 ### Hide annoying built-in Streamlit HTML ###
+st.markdown(open_graph_style, unsafe_allow_html=True)
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 state = session_state.get(prev_request=streamlit_ui.get_default_request(), key=0)
