@@ -14,14 +14,20 @@ def process(
     )
 
     dfs = []
+    print(displayable_data)
 
     for metric_type, df in displayable_data.items():
-        df[processing_utils.CATEGORY_GRAPHING_COL] = df.apply(
-            lambda row: row[processing_utils.ENTITY_COL] + ": " + metric_type, axis=1
-        )
-        dfs.append(df)
+        if len(df) > 0:
+            df[processing_utils.CATEGORY_GRAPHING_COL] = df.apply(
+                lambda row: row[processing_utils.ENTITY_COL] + ": " + metric_type,
+                axis=1,
+            )
+            dfs.append(df)
 
-    return pd.concat(dfs)
+    if len(dfs) > 0:
+        return pd.concat(dfs)
+    else:
+        return None
 
 
 def get_dropdown_options(data):

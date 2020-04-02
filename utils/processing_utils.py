@@ -161,10 +161,18 @@ def post_process_international_states_df(df, international_post_processed):
     }
 
     renamed_df = df.rename(columns=col_mapping)
-    renamed_df = renamed_df[renamed_df[COUNTRY_COL] != "US"]
-
+    renamed_df = renamed_df[
+        (renamed_df[COUNTRY_COL] != "US")
+        & (renamed_df[COUNTRY_COL] != "UK")
+        & (renamed_df[COUNTRY_COL] != "None")
+    ]
     countries = set(international_post_processed[COUNTRY_COL].unique())
     renamed_df = renamed_df[~renamed_df[STATE_COL].isin(countries)]
+
+    renamed_df = renamed_df.dropna(subset=[STATE_COL])
+    renamed_df[STATE_COL] = renamed_df.apply(
+        lambda row: row[STATE_COL] + " (" + row[COUNTRY_COL] + ")", axis=1
+    )
 
     renamed_df = agg_df(
         renamed_df,
@@ -279,6 +287,8 @@ def stable_post_process_state_testing_df(df):
     df[STATE_COL] = df[STATE_COL].apply(
         lambda abbrev: STATE_MAPPING[abbrev] if abbrev in STATE_MAPPING else abbrev
     )
+
+    df[STATE_COL] = df.apply(lambda row: row[STATE_COL] + " (United States)", axis=1)
 
     return add_percent_change(
         df,

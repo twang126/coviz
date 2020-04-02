@@ -8,6 +8,8 @@ from utils import site_data_abstraction
 from utils import data_fetcher
 from utils import processing_utils
 from utils import graphing
+from utils import streamlit_ui
+
 import time
 
 hide_menu_style = """
@@ -54,7 +56,7 @@ def load_data(curr_time):
 # We need to grab the curr time as a way to smartly cache
 curr_time = get_hours_from_epoch()
 
-st.title("nCOVID-19 Visualizer")
+streamlit_ui.add_header_and_title(st)
 data, dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
@@ -95,6 +97,9 @@ if st.sidebar.button("Plot"):
             filter_dict=request["filter_dict"],
         )
 
-        chart = graphing.build_chart(source=df)
+        if df is not None:
+            chart = graphing.build_chart(source=df)
 
-        graph_cell.altair_chart(chart)
+            graph_cell.altair_chart(chart)
+        else:
+            st.markdown("No data found for that query.")
