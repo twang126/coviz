@@ -95,14 +95,18 @@ counties = st.sidebar.multiselect(
 
 st.sidebar.header("Overlay (Optional):")
 overlay_checkbox = st.sidebar.checkbox("Apply overlay")
+
 if overlay_checkbox:
     st.sidebar.subheader("Select overlay Metric:")
     overlay_metric = st.sidebar.selectbox(
-        label="", options=dropdown_options[processing_utils.MEASUREMENT_COL]
+        label="", options=dropdown_options[processing_utils.MEASUREMENT_COL],
     )
 
     st.sidebar.subheader("Set overlay threshold:")
     overlay_threshold = st.sidebar.number_input(label="")
+else:
+    overlay_metric = None
+    overlay_threshold = None
 
 
 ### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
