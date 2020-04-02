@@ -156,6 +156,7 @@ def fetch_streamlit_raw_data_display(displayable_data):
                         last_week[processing_utils.MEASUREMENT_COL] > 0
                     ][processing_utils.MEASUREMENT_COL].min(),
                     "mean": last_week[processing_utils.MEASUREMENT_COL].mean(),
+                    "number of days": len(last_week),
                 }
 
             columned = df[

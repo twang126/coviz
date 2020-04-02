@@ -7,7 +7,7 @@ import altair as alt
 def add_header_and_title(st):
     st.title("The nCovid Analysis Project")
     st.markdown(
-        """Authors: [Tim Wang]() & [Anurag Pradhan]() | [Github](https://github.com/twang126/coviz)"""
+        """Authors: [Tim Wang](timothyxwang.com) & [Anurag Pradhan](https://www.linkedin.com/in/anuragpradhan2016) | [Github](https://github.com/twang126/coviz)"""
     )
 
     st.markdown(

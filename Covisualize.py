@@ -70,7 +70,7 @@ data, dropdown_options = load_data(curr_time)
 st.markdown("""### nCovid-19 Visualizer """)
 graph_cell = st.empty()
 
-st.header("Raw Data")
+st.header("Data")
 data_cell = st.empty()
 
 ### Set up the side bar ###
@@ -94,7 +94,7 @@ overlay_metric_selector = st.sidebar.empty()
 overlay_threshold_box = st.sidebar.empty()
 
 
-plot_button = st.sidebar.button("Plot")
+plot_button = st.sidebar.button("Execute Query")
 reset_button = st.sidebar.button("Reset")
 graph_alerts_cell = st.sidebar.empty()
 
@@ -198,12 +198,15 @@ if plot_button:
                         st.markdown("Metric: " + metric)
                         st.write(stats_dict)
 
-            for entity, metric_to_dataframe in all_dataframes.items():
-                st.subheader("Entity: " + entity)
+            if len(all_dataframes) > 0:
+                st.header("Raw data tables")
 
-                for metric, df in metric_to_dataframe.items():
-                    st.markdown("Metric: " + metric)
-                    st.write(df)
+                for entity, metric_to_dataframe in all_dataframes.items():
+                    st.subheader("Entity: " + entity)
+
+                    for metric, df in metric_to_dataframe.items():
+                        st.markdown("Metric: " + metric)
+                        st.write(df)
 
     if not successfully_updated_chart:
         graph_alerts_cell.markdown(
