@@ -61,14 +61,14 @@ def generate_data_fetch_request(
     countries,
     states,
     counties,
-    overlay_checkbox,
+    overlay_applied,
     overlay_metric,
     overlay_threshold,
 ):
     request = {}
 
-    request["threshold_metric"] = overlay_metric if overlay_checkbox else None
-    request["threshold_val"] = overlay_threshold if overlay_checkbox else None
+    request["threshold_metric"] = overlay_metric if overlay_applied else None
+    request["threshold_val"] = overlay_threshold if overlay_applied else None
     request["filter_dict"] = {}
     request["entities"] = []
     request["metrics"] = metrics

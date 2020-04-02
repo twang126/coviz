@@ -9,6 +9,7 @@ from utils import data_fetcher
 from utils import processing_utils
 from utils import graphing
 from utils import streamlit_ui
+from utils import session_state
 
 import time
 
@@ -40,6 +41,8 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
+state = session_state.get(prev_request=streamlit_ui.get_default_request())
+
 
 def get_hours_from_epoch():
     return time.time() // (60 * 60)
@@ -67,13 +70,6 @@ data, dropdown_options = load_data(curr_time)
 st.header("Graph")
 graph_cell = st.empty()
 
-default_request = streamlit_ui.get_default_request()
-default_source_df = data_fetcher.process_request_dict(
-    data_obj=data, request=default_request
-)
-default_chart = graphing.build_chart(source=default_source_df)
-graph_cell.altair_chart(default_chart)
-
 st.header("Raw Data")
 data_cell = st.empty()
 
@@ -90,6 +86,7 @@ metrics_selector = st.sidebar.multiselect(
     ],
 )
 
+### Define the selection bars
 st.sidebar.header("Select Entities:")
 st.sidebar.text("Note: You can leave options empty.")
 countries = st.sidebar.multiselect(
@@ -107,20 +104,27 @@ counties = st.sidebar.multiselect(
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
 )
 
-st.sidebar.header("Overlay (Optional):")
-overlay_checkbox = st.sidebar.checkbox("Apply overlay")
 
+### Set the overlay
+st.sidebar.header("Overlay (optional):")
+overlay_checkbox = st.sidebar.checkbox("Apply overlay")
 if overlay_checkbox:
-    st.sidebar.subheader("Select overlay Metric:")
     overlay_metric = st.sidebar.selectbox(
-        label="", options=dropdown_options[processing_utils.MEASUREMENT_COL],
+        label="Overlay Metric:",
+        options=dropdown_options[processing_utils.MEASUREMENT_COL],
     )
 
-    st.sidebar.subheader("Set overlay threshold:")
-    overlay_threshold = st.sidebar.number_input(label="")
+    overlay_threshold = st.sidebar.number_input(label="Overlay Threshold:")
 else:
     overlay_metric = None
     overlay_threshold = None
+
+## Add the default plot
+default_source_df = data_fetcher.process_request_dict(
+    data_obj=data, request=state.prev_request
+)
+default_chart = graphing.build_chart(source=default_source_df)
+graph_cell.altair_chart(default_chart)
 
 plot_button = st.sidebar.button("Plot")
 graph_alerts_cell = st.sidebar.empty()
@@ -147,6 +151,7 @@ if plot_button:
 
             graph_cell.altair_chart(chart)
             successfully_updated_chart = True
+            state.prev_request = request
 
     if not successfully_updated_chart:
         graph_alerts_cell.markdown(
