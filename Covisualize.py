@@ -41,7 +41,7 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-state = session_state.get(prev_request=streamlit_ui.get_default_request())
+state = session_state.get(prev_request=streamlit_ui.get_default_request(), key=0)
 
 
 def get_hours_from_epoch():
@@ -74,9 +74,36 @@ st.header("Raw Data")
 data_cell = st.empty()
 
 ### Set up the side bar ###
+### Use lots of Empty place holders to support reset button
 st.sidebar.markdown("""**QueryBuilder [v1.1](https://github.com/twang126/coviz)**""")
+
 st.sidebar.markdown("""### Select Metric(s): """)
-metrics_selector = st.sidebar.multiselect(
+metrics_selector = st.sidebar.empty()
+st.sidebar.markdown("""### Select Entities: """)
+st.sidebar.text("Note: You can leave options empty.")
+countries_selector = st.sidebar.empty()
+
+states_selector = st.sidebar.empty()
+
+counties_selector = st.sidebar.empty()
+
+st.sidebar.markdown("""### Overlay (Optional):""")
+
+overlay_box = st.sidebar.empty()
+overlay_metric_selector = st.sidebar.empty()
+overlay_threshold_box = st.sidebar.empty()
+
+
+plot_button = st.sidebar.button("Plot")
+reset_button = st.sidebar.button("Reset")
+graph_alerts_cell = st.sidebar.empty()
+
+#### Define the reset button
+if reset_button:
+    state.key = state.key + 1
+
+### Actually implement the selector menus
+metrics = metrics_selector.multiselect(
     "Type(s) of data to plot",
     dropdown_options[processing_utils.MEASUREMENT_COL],
     default=[
@@ -84,34 +111,40 @@ metrics_selector = st.sidebar.multiselect(
         processing_utils.DEATHS_COL,
         processing_utils.RECOVERED_COL,
     ],
+    key=state.key,
 )
 
-st.sidebar.markdown("""### Select Entities: """)
-st.sidebar.text("Note: You can leave options empty.")
-countries = st.sidebar.multiselect(
+countries = countries_selector.multiselect(
     processing_utils.COUNTRY_COL + "s:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
     default=["World"],
+    key=state.key,
 )
 
-states = st.sidebar.multiselect(
+states = states_selector.multiselect(
     processing_utils.STATE_COL + "s:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
+    key=state.key,
 )
-counties = st.sidebar.multiselect(
+
+counties = counties_selector.multiselect(
     "US Counties:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
+    key=state.key,
 )
 
-st.sidebar.markdown("""### Overlay (Optional):""")
-overlay_checkbox = st.sidebar.checkbox("Apply overlay")
+overlay_checkbox = overlay_box.checkbox("Apply overlay")
+
 if overlay_checkbox:
-    overlay_metric = st.sidebar.selectbox(
+    overlay_metric = overlay_metric_selector.selectbox(
         label="Overlay Metric:",
         options=dropdown_options[processing_utils.MEASUREMENT_COL],
+        key=state.key,
     )
 
-    overlay_threshold = st.sidebar.number_input(label="Overlay Threshold:")
+    overlay_threshold = overlay_threshold_box.number_input(
+        label="Overlay Threshold:", key=state.key
+    )
 else:
     overlay_metric = None
     overlay_threshold = None
@@ -123,13 +156,10 @@ default_source_df = data_fetcher.process_request_dict(
 default_chart = graphing.build_chart(source=default_source_df)
 graph_cell.altair_chart(default_chart)
 
-plot_button = st.sidebar.button("Plot")
-graph_alerts_cell = st.sidebar.empty()
-
 ### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
 if plot_button:
     request = data_fetcher.generate_data_fetch_request(
-        metrics_selector,
+        metrics,
         countries,
         states,
         counties,
@@ -148,6 +178,8 @@ if plot_button:
 
             graph_cell.altair_chart(chart)
             successfully_updated_chart = True
+
+            # Set the default plot
             state.prev_request = request
 
     if not successfully_updated_chart:
