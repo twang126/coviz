@@ -203,10 +203,10 @@ if plot_button:
                 st.header("Descriptive statistics for rate of change metrics")
 
                 for entity, metric_to_plot in all_plots.items():
-                    st.markdown("Entity: " + entity)
+                    st.subheader(entity)
 
                     for metric, stats_dict in metric_to_plot.items():
-                        st.markdown("Metric: " + metric)
+                        st.markdown(metric)
                         st.write(stats_dict)
 
             if len(all_dataframes) > 0:
