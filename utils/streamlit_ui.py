@@ -78,7 +78,3 @@ def get_default_request():
         None,
         None,
     )
-
-
-def set_up_metrics_selectors():
-    pass

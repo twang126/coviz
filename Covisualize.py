@@ -151,7 +151,7 @@ else:
     overlay_threshold = None
 
 ## Add the default plot
-default_source_df = data_fetcher.process_request_dict(
+default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
     data_obj=data, request=state.prev_request
 )
 default_chart = graphing.build_chart(source=default_source_df)
@@ -172,7 +172,9 @@ if plot_button:
     successfully_updated_chart = False
 
     if data_fetcher.is_valid_data_fetch_request(request):
-        df = data_fetcher.process_request_dict(data_obj=data, request=request)
+        df, displayable_data = data_fetcher.process_request_dict(
+            data_obj=data, request=request
+        )
 
         if df is not None:
             chart = graphing.build_chart(source=df)
@@ -182,10 +184,30 @@ if plot_button:
 
             # Set the default plot
             state.prev_request = request
+            all_dataframes, all_plots = data_fetcher.fetch_streamlit_raw_data_display(
+                displayable_data
+            )
+
+            if len(all_plots) > 0:
+                st.header("Descriptive statistics for rate of change metrics")
+
+                for entity, metric_to_plot in all_plots.items():
+                    st.subheader("Entity: " + entity)
+
+                    for metric, stats_dict in metric_to_plot.items():
+                        st.markdown("Metric: " + metric)
+                        st.write(stats_dict)
+
+            for entity, metric_to_dataframe in all_dataframes.items():
+                st.subheader("Entity: " + entity)
+
+                for metric, df in metric_to_dataframe.items():
+                    st.markdown("Metric: " + metric)
+                    st.write(df)
 
     if not successfully_updated_chart:
         graph_alerts_cell.markdown(
-            "**Graph failed to update**: no data returned for that query."
+            "**Failed to update**: no data returned for that query."
         )
     else:
         graph_alerts_cell.markdown("")

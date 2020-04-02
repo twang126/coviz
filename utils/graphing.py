@@ -22,8 +22,8 @@ def build_chart(source):
     # The basic line
     line = (
         alt.Chart(source)
-        .mark_line(interpolate="cardinal")
-        .encode(x=x_col_str_label , y=y_col_str_label, color=category_str_label)
+        .mark_line(interpolate="natural")
+        .encode(x=x_col_str_label, y=y_col_str_label, color=category_str_label)
     )
 
     # Transparent selectors across the chart. This is what tells us
@@ -57,6 +57,5 @@ def build_chart(source):
     chart = alt.layer(line, selectors, points, rules, text).properties(
         width=750, height=600
     )
-
 
     return chart

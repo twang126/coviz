@@ -21,7 +21,7 @@ class Data:
     def set_up(self):
         # The international COVID dataset, aggregated per country and state
         # Source: Kaggle
-        print("Set up data")
+        print("Setting up data")
         self.last_update = time.time()
         self.raw_global_df = api_utils.get_international_dataset()
 
