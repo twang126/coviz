@@ -101,6 +101,7 @@ graph_alerts_cell = st.sidebar.empty()
 #### Define the reset button
 if reset_button:
     state.key = state.key + 1
+    state.prev_request = streamlit_ui.get_default_request()
 
 ### Actually implement the selector menus
 metrics = metrics_selector.multiselect(
