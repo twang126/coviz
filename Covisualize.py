@@ -67,7 +67,7 @@ if st.checkbox("View Instructions"):
 data, dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
-st.header("Graph")
+st.markdown("""### nCovid-19 Visualizer """)
 graph_cell = st.empty()
 
 st.header("Raw Data")
