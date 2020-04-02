@@ -66,11 +66,3 @@ def build_chart(source):
     )
 
     return chart
-
-
-def build_placeholder_chart():
-    chart = (
-        alt.Chart(pd.DataFrame({"A": []})).properties(width=750, height=600).mark_bar()
-    )
-
-    return chart

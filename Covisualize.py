@@ -66,7 +66,13 @@ data, dropdown_options = load_data(curr_time)
 ### Build a placeholder cell ###
 st.header("Graph")
 graph_cell = st.empty()
-graph_cell.altair_chart(graphing.build_placeholder_chart())
+
+default_request = streamlit_ui.get_default_request()
+default_source_df = data_fetcher.process_request_dict(
+    data_obj=data, request=default_request
+)
+default_chart = graphing.build_chart(source=default_source_df)
+graph_cell.altair_chart(default_chart)
 
 st.header("Raw Data")
 data_cell = st.empty()
@@ -75,7 +81,13 @@ data_cell = st.empty()
 st.sidebar.title("Query Builder")
 st.sidebar.header("Select Metric(s):")
 metrics_selector = st.sidebar.multiselect(
-    "", dropdown_options[processing_utils.MEASUREMENT_COL]
+    "",
+    dropdown_options[processing_utils.MEASUREMENT_COL],
+    default=[
+        processing_utils.CONFIRMED_COL,
+        processing_utils.DEATHS_COL,
+        processing_utils.RECOVERED_COL,
+    ],
 )
 
 st.sidebar.header("Select Entities:")
@@ -83,7 +95,9 @@ st.sidebar.text("Note: You can leave options empty.")
 countries = st.sidebar.multiselect(
     processing_utils.COUNTRY_COL + "s:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
+    default=["World"],
 )
+
 states = st.sidebar.multiselect(
     processing_utils.STATE_COL + "s:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
@@ -108,9 +122,11 @@ else:
     overlay_metric = None
     overlay_threshold = None
 
+plot_button = st.sidebar.button("Plot")
+graph_alerts_cell = st.sidebar.empty()
 
 ### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
-if st.sidebar.button("Plot"):
+if plot_button:
     request = data_fetcher.generate_data_fetch_request(
         metrics_selector,
         countries,
@@ -121,19 +137,20 @@ if st.sidebar.button("Plot"):
         overlay_threshold,
     )
 
+    successfully_updated_chart = False
+
     if data_fetcher.is_valid_data_fetch_request(request):
-        df = data_fetcher.process(
-            data=data,
-            entities=request["entities"],
-            metrics=request["metrics"],
-            filter_dict=request["filter_dict"],
-            threshold_value=request["threshold_val"],
-            threshold_metric=request["threshold_metric"],
-        )
+        df = data_fetcher.process_request_dict(data_obj=data, request=request)
 
         if df is not None:
             chart = graphing.build_chart(source=df)
 
             graph_cell.altair_chart(chart)
-        else:
-            st.markdown("No data found for that query.")
+            successfully_updated_chart = True
+
+    if not successfully_updated_chart:
+        graph_alerts_cell.markdown(
+            "**Graph failed to update**: no data returned for that query."
+        )
+    else:
+        graph_alerts_cell.markdown("")

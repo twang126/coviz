@@ -115,6 +115,40 @@ class CovidDF:
         pass
 
 
+def create_world_df(df):
+    col_mapping = {
+        "Date": DATE_COL,
+        "Country/Region": COUNTRY_COL,
+        "Province/State": STATE_COL,
+        "Confirmed": CONFIRMED_COL,
+        "Recovered": RECOVERED_COL,
+        "Deaths": DEATHS_COL,
+    }
+
+    renamed_df = df.rename(columns=col_mapping)
+    renamed_df[COUNTRY_COL] = "World"
+
+    renamed_df = agg_df(
+        renamed_df,
+        group_cols=[DATE_COL, COUNTRY_COL],
+        agg_col=[CONFIRMED_COL, RECOVERED_COL, DEATHS_COL],
+    )
+
+    renamed_df = add_rolling_diff(
+        renamed_df,
+        sort_cols=[DATE_COL, COUNTRY_COL],
+        diff_group_cols=[COUNTRY_COL],
+        agg_cols=[CONFIRMED_COL, RECOVERED_COL, DEATHS_COL],
+    )
+
+    return add_percent_change(
+        renamed_df,
+        sort_cols=[DATE_COL, COUNTRY_COL],
+        diff_group_cols=[COUNTRY_COL],
+        agg_cols=[CONFIRMED_COL, RECOVERED_COL, DEATHS_COL],
+    )
+
+
 def post_process_international_df(df):
     col_mapping = {
         "Date": DATE_COL,
@@ -490,11 +524,11 @@ def get_all_entities(dataframes):
 
     # sort counties by state -> county name
     sorted_counties = list(set(all_counties))
-    sorted_counties.sort(key = cmp_to_key(compare))
+    sorted_counties.sort(key=cmp_to_key(compare))
 
     # sort states/province by country-> state/province name
     sorted_states = list(set(all_states))
-    sorted_states.sort(key = cmp_to_key(compare))
+    sorted_states.sort(key=cmp_to_key(compare))
 
     entities[COUNTRY_COL] = sorted(set(all_countries))
     entities[STATE_COL] = sorted_states
@@ -504,13 +538,21 @@ def get_all_entities(dataframes):
 
 
 def compare(entity1, entity2):
-    if entity1.find('(') <  entity1.find(')') and entity2.find('(') <  entity2.find(')'):
-        if entity1[entity1.find("(")+1:entity1.find(")")] == (entity2[entity2.find("(")+1:entity2.find(")")]):
+    if entity1.find("(") < entity1.find(")") and entity2.find("(") < entity2.find(")"):
+        if entity1[entity1.find("(") + 1 : entity1.find(")")] == (
+            entity2[entity2.find("(") + 1 : entity2.find(")")]
+        ):
             return -1 if entity1 < entity2 else 1
         else:
-            return -1 if entity1[entity1.find("(")+1:entity1.find(")")] < (entity2[entity2.find("(")+1:entity2.find(")")]) else 1
+            return (
+                -1
+                if entity1[entity1.find("(") + 1 : entity1.find(")")]
+                < (entity2[entity2.find("(") + 1 : entity2.find(")")])
+                else 1
+            )
     else:
         return -1 if entity1 < entity2 else 1
+
 
 def create_hierarchy(all_entities):
     hierarchy = {

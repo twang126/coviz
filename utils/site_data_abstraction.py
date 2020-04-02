@@ -6,6 +6,7 @@ from utils.covid_dataset import CovidData
 
 class Data:
     def __init__(self):
+        self.world_df = None
         self.raw_global_df = None
         self.international_df = None
         self.international_states_df = None
@@ -23,12 +24,15 @@ class Data:
         print("Set up data")
         self.last_update = time.time()
         self.raw_global_df = api_utils.get_international_dataset()
+
+        self.world_df = processing_utils.create_world_df(self.raw_global_df.copy())
+
         self.international_df = processing_utils.post_process_international_df(
-            self.raw_global_df
+            self.raw_global_df.copy()
         )
 
         self.international_states_df = processing_utils.post_process_international_states_df(
-            self.raw_global_df, self.international_df
+            self.raw_global_df.copy(), self.international_df.copy()
         )
 
         # US testing dataset
@@ -65,6 +69,7 @@ class Data:
         # Wrapper class for all of the different data sources
         self.CovidDf = CovidData(
             [
+                self.world_df,
                 self.international_df,
                 self.international_states_df,
                 self.us_testing_df,

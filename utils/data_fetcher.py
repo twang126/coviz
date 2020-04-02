@@ -2,6 +2,17 @@ from utils import processing_utils
 import pandas as pd
 
 
+def process_request_dict(data_obj, request):
+    return process(
+        data=data_obj,
+        entities=request["entities"],
+        metrics=request["metrics"],
+        filter_dict=request["filter_dict"],
+        threshold_value=request["threshold_val"],
+        threshold_metric=request["threshold_metric"],
+    )
+
+
 def process(
     data, entities, metrics, filter_dict, threshold_value=None, threshold_metric=None
 ):

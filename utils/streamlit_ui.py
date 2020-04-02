@@ -1,3 +1,9 @@
+from utils import data_fetcher
+from utils import processing_utils
+
+import altair as alt
+
+
 def add_header_and_title(st):
     st.title("The nCovid Analysis Project")
     st.markdown(
@@ -47,4 +53,28 @@ def load_instructions(st):
     Note that some combinations of Metrics and Entities have no reported data. In this case, you will see a blank graph.  
     Finally, if anything is broken or inconsistent, please do not hesitate to reach out.
     """
+    )
+
+
+def get_default_index(term, lst):
+    for i, item in enumerate(lst):
+        if item == term:
+            return i
+
+    return 0
+
+
+def get_default_request():
+    return data_fetcher.generate_data_fetch_request(
+        [
+            processing_utils.CONFIRMED_COL,
+            processing_utils.RECOVERED_COL,
+            processing_utils.DEATHS_COL,
+        ],
+        ["World"],
+        [],
+        [],
+        False,
+        None,
+        None,
     )
