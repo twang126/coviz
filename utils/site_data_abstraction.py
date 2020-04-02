@@ -21,7 +21,7 @@ class Data:
     def should_update(self):
         curr_time = time.time()
 
-        if self.last_update is None or curr_time >= self.last_update:
+        if self.last_update is None or curr_time >= self.last_update + 3600:
             print("Please update data.")
             return True
 
