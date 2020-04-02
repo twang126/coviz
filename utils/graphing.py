@@ -23,14 +23,7 @@ def build_chart(source):
     line = (
         alt.Chart(source)
         .mark_line(interpolate="cardinal")
-        .encode(x=x_col_str_label, y=y_col_str_label, color=category_str_label)
-    )
-
-    # Dots
-    dots = (
-        alt.Chart(source)
-        .mark_point()
-        .encode(x=x_col_str_label, y=y_col_str_label, color=category_str_label)
+        .encode(x=x_col_str_label , y=y_col_str_label, color=category_str_label)
     )
 
     # Transparent selectors across the chart. This is what tells us
@@ -48,7 +41,7 @@ def build_chart(source):
     )
 
     # Draw text labels near the points, and highlight based on selection
-    text = line.mark_text(align="left", dx=5, dy=-5).encode(
+    text = line.mark_text(align="left", dx=5, dy=5).encode(
         text=alt.condition(nearest, y_col_str_label, alt.value(" "))
     )
 
@@ -56,13 +49,14 @@ def build_chart(source):
     rules = (
         alt.Chart(source)
         .mark_rule(color="limegreen")
-        .encode(x=x_col_str_label,)
+        .encode(x=x_col_str_label)
         .transform_filter(nearest)
     )
 
     # Put the five layers into a chart and bind the data
-    chart = alt.layer(line, selectors, dots, points, rules, text).properties(
+    chart = alt.layer(line, selectors, points, rules, text).properties(
         width=750, height=600
     )
+
 
     return chart
