@@ -73,41 +73,48 @@ data_cell = st.empty()
 
 ### Set up the side bar ###
 st.sidebar.title("Query Builder")
-st.sidebar.subheader("Define Metric(s):")
+st.sidebar.header("Select Metric(s):")
 metrics_selector = st.sidebar.multiselect(
     "", dropdown_options[processing_utils.MEASUREMENT_COL]
 )
 
-st.sidebar.subheader("Define Entities:")
+st.sidebar.header("Select Entities:")
 st.sidebar.text("Note: You can leave options empty.")
 countries = st.sidebar.multiselect(
-    processing_utils.COUNTRY_COL,
+    processing_utils.COUNTRY_COL + "s:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
 )
 states = st.sidebar.multiselect(
-    processing_utils.STATE_COL,
+    processing_utils.STATE_COL + "s:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
 )
 counties = st.sidebar.multiselect(
-    "US Counties",
+    "US Counties:",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
 )
 
-overlay_checkbox = st.sidebar.checkbox("Overlay")
+st.sidebar.header("Overlay (Optional):")
+overlay_checkbox = st.sidebar.checkbox("Apply overlay")
 if overlay_checkbox:
-    st.sidebar.subheader("Define overlay Metric:")
-    overlay_metric = st.sidebar.select(
-        dropdown_options[processing_utils.MEASUREMENT_COL]
+    st.sidebar.subheader("Select overlay Metric:")
+    overlay_metric = st.sidebar.selectbox(
+        label="", options=dropdown_options[processing_utils.MEASUREMENT_COL]
     )
 
-    st.sidebar.subheader("Define overlay threshold:")
-    overlay_threshold = st.number_input(min_value=0)
+    st.sidebar.subheader("Set overlay threshold:")
+    overlay_threshold = st.sidebar.number_input(label="")
 
 
 ### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
 if st.sidebar.button("Plot"):
     request = data_fetcher.generate_data_fetch_request(
-        metrics_selector, countries, states, counties
+        metrics_selector,
+        countries,
+        states,
+        counties,
+        overlay_checkbox,
+        overlay_metric,
+        overlay_threshold,
     )
 
     if data_fetcher.is_valid_data_fetch_request(request):
@@ -116,6 +123,8 @@ if st.sidebar.button("Plot"):
             entities=request["entities"],
             metrics=request["metrics"],
             filter_dict=request["filter_dict"],
+            threshold_value=request["threshold_val"],
+            threshold_metric=request["threshold_metric"],
         )
 
         if df is not None:

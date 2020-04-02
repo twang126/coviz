@@ -14,7 +14,6 @@ def process(
     )
 
     dfs = []
-    print(displayable_data)
 
     for metric_type, df in displayable_data.items():
         if len(df) > 0:
@@ -46,11 +45,19 @@ def get_dropdown_options(data):
     return options
 
 
-def generate_data_fetch_request(metrics, countries, states, counties):
+def generate_data_fetch_request(
+    metrics,
+    countries,
+    states,
+    counties,
+    overlay_checkbox,
+    overlay_metric,
+    overlay_threshold,
+):
     request = {}
 
-    print(countries)
-
+    request["threshold_metric"] = overlay_metric if overlay_checkbox else None
+    request["threshold_val"] = overlay_threshold if overlay_checkbox else None
     request["filter_dict"] = {}
     request["entities"] = []
     request["metrics"] = metrics
@@ -78,7 +85,9 @@ def is_valid_data_fetch_request(request):
         "entities" not in request
         or "filter_dict" not in request
         or "metrics" not in request
-        or len(request) > 3
+        or "threshold_metric" not in request
+        or "threshold_val" not in request
+        or len(request) > 5
     ):
         return False
 
