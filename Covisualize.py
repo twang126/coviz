@@ -42,11 +42,16 @@ st.markdown(open_graph_style, unsafe_allow_html=True)
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-state = session_state.get(prev_request=streamlit_ui.get_default_request(), key=0)
+state = session_state.get(
+    prev_request=streamlit_ui.get_default_request(),
+    key=0,
+    data_obj=None,
+    dropdown_options=None,
+)
 
 
 def get_hours_from_epoch():
-    return time.time() // (60 * 60)
+    return int(time.time() // (60 * 60))
 
 
 @st.cache
@@ -65,7 +70,12 @@ streamlit_ui.add_header_and_title(st)
 if st.checkbox("View Usage Guide"):
     streamlit_ui.load_instructions(st)
 
-data, dropdown_options = load_data(curr_time)
+if (
+    state.data_obj is None
+    or state.dropdown_options is None
+    or state.data_obj.should_update()
+):
+    state.data_obj, state.dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
 st.markdown("""### Graph ### """)
@@ -107,7 +117,7 @@ if reset_button:
 ### Actually implement the selector menus
 metrics = metrics_selector.multiselect(
     "Type(s) of data to plot",
-    dropdown_options[processing_utils.MEASUREMENT_COL],
+    state.dropdown_options[processing_utils.MEASUREMENT_COL],
     default=[
         processing_utils.CONFIRMED_COL,
         processing_utils.DEATHS_COL,
@@ -118,20 +128,20 @@ metrics = metrics_selector.multiselect(
 
 countries = countries_selector.multiselect(
     processing_utils.COUNTRY_COL + "s:",
-    dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
+    state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
     default=["World"],
     key=state.key,
 )
 
 states = states_selector.multiselect(
     processing_utils.STATE_COL + "s:",
-    dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
+    state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
     key=state.key,
 )
 
 counties = counties_selector.multiselect(
     "US Counties:",
-    dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
+    state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
     key=state.key,
 )
 
@@ -140,7 +150,7 @@ overlay_checkbox = overlay_box.checkbox("Enable overlay")
 if overlay_checkbox:
     overlay_metric = overlay_metric_selector.selectbox(
         label="Overlay Metric:",
-        options=dropdown_options[processing_utils.MEASUREMENT_COL],
+        options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
         key=state.key,
     )
 
@@ -153,7 +163,7 @@ else:
 
 ## Add the default plot
 default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
-    data_obj=data, request=state.prev_request
+    data_obj=state.data_obj, request=state.prev_request
 )
 default_chart = graphing.build_chart(source=default_source_df)
 graph_cell.altair_chart(default_chart)
@@ -174,7 +184,7 @@ if plot_button:
 
     if data_fetcher.is_valid_data_fetch_request(request):
         df, displayable_data = data_fetcher.process_request_dict(
-            data_obj=data, request=request
+            data_obj=state.data_obj, request=request
         )
 
         if df is not None:

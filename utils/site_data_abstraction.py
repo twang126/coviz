@@ -18,6 +18,15 @@ class Data:
 
         self.set_up()
 
+    def should_update(self):
+        curr_time = time.time()
+
+        if self.last_update is None or curr_time >= self.last_update:
+            print("Please update data.")
+            return True
+
+        return False
+
     def set_up(self):
         # The international COVID dataset, aggregated per country and state
         # Source: Kaggle
