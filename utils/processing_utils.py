@@ -1,5 +1,6 @@
 import datetime
 import numpy as np
+from functools import cmp_to_key
 
 CATEGORY_GRAPHING_COL = "Data"
 
@@ -38,7 +39,7 @@ METRIC_PERCENT_CHANGE_COLS = [
     col + DELTA_PERCENT_COL_SUFFIX for col in MEASUREMENT_COLS
 ]
 
-METRIC_COLS = MEASUREMENT_COLS + METRIC_DELTA_COLS + METRIC_PERCENT_CHANGE_COLS
+METRIC_COLS = sorted(MEASUREMENT_COLS + METRIC_DELTA_COLS + METRIC_PERCENT_CHANGE_COLS)
 
 ENTITY_COLS = [COUNTRY_COL, STATE_COL, COUNTY_COL]
 
@@ -477,12 +478,29 @@ def get_all_entities(dataframes):
 
             all_countries = all_countries + countries
 
-    entities[COUNTRY_COL] = list(set(all_countries))
-    entities[STATE_COL] = list(set(all_states))
-    entities[COUNTY_COL] = list(set(all_counties))
+    # sort counties by state -> county name
+    sorted_counties = list(set(all_counties))
+    sorted_counties.sort(key = cmp_to_key(compare))
+
+    # sort states/province by country-> state/province name
+    sorted_states = list(set(all_states))
+    sorted_states.sort(key = cmp_to_key(compare))
+
+    entities[COUNTRY_COL] = sorted(set(all_countries))
+    entities[STATE_COL] = sorted_states
+    entities[COUNTY_COL] = sorted_counties
 
     return entities
 
+
+def compare(entity1, entity2):
+    if entity1.find('(') <  entity1.find(')') and entity2.find('(') <  entity2.find(')'):
+        if entity1[entity1.find("(")+1:entity1.find(")")] == (entity2[entity2.find("(")+1:entity2.find(")")]):
+            return -1 if entity1 < entity2 else 1
+        else:
+            return -1 if entity1[entity1.find("(")+1:entity1.find(")")] < (entity2[entity2.find("(")+1:entity2.find(")")]) else 1
+    else:
+        return -1 if entity1 < entity2 else 1
 
 def create_hierarchy(all_entities):
     hierarchy = {
