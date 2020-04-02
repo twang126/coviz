@@ -163,7 +163,7 @@ def fetch_streamlit_raw_data_display(displayable_data):
                 [processing_utils.DATE_COL, processing_utils.MEASUREMENT_COL]
             ].copy()
             entity_to_metric_to_displayable_df[entity][metric] = columned.sort_values(
-                by=processing_utils.DATE_COL, inplace=False
+                by=processing_utils.DATE_COL, inplace=False, ascending=False
             )
 
     return entity_to_metric_to_displayable_df, entity_to_metric_to_boxplots
