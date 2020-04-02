@@ -57,31 +57,52 @@ def load_data(curr_time):
 curr_time = get_hours_from_epoch()
 
 streamlit_ui.add_header_and_title(st)
+
+if st.checkbox("View Instructions"):
+    streamlit_ui.load_instructions(st)
+
 data, dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
+st.header("Graph")
 graph_cell = st.empty()
 graph_cell.altair_chart(graphing.build_placeholder_chart())
 
+st.header("Raw Data")
+data_cell = st.empty()
+
 ### Set up the side bar ###
+st.sidebar.title("Query Builder")
+st.sidebar.subheader("Define Metric(s):")
 metrics_selector = st.sidebar.multiselect(
-    "Metrics", dropdown_options[processing_utils.MEASUREMENT_COL], default=[]
+    "", dropdown_options[processing_utils.MEASUREMENT_COL]
 )
+
+st.sidebar.subheader("Define Entities:")
+st.sidebar.text("Note: You can leave options empty.")
 countries = st.sidebar.multiselect(
     processing_utils.COUNTRY_COL,
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
-    default=None,
 )
 states = st.sidebar.multiselect(
     processing_utils.STATE_COL,
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
-    default=None,
 )
 counties = st.sidebar.multiselect(
     "US Counties",
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
-    default=None,
 )
+
+overlay_checkbox = st.sidebar.checkbox("Overlay")
+if overlay_checkbox:
+    st.sidebar.subheader("Define overlay Metric:")
+    overlay_metric = st.sidebar.select(
+        dropdown_options[processing_utils.MEASUREMENT_COL]
+    )
+
+    st.sidebar.subheader("Define overlay threshold:")
+    overlay_threshold = st.number_input(min_value=0)
+
 
 ### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
 if st.sidebar.button("Plot"):

@@ -6,13 +6,45 @@ def add_header_and_title(st):
 
     st.markdown(
         """ 
-        As the novel coronavirus continues to spread throughout the globe, more and more data is becoming more
-        available to us for a handful of different metrics, each reported by different countries and regions in the 
-        world. However, this data comes from many different sources- the WHO, individual health departments, etc. and 
-        indeed, many visualizations can only operate on subsets of this data.  
+        Recently, there has been much more data available on the novel coronavirus. However, this data is reported by many different sources without much cohesion. As a result, 
+        many existing visualizations can only operate on subsets of this data, not the whole. We have started this project to attempt to consolidate
+        all of these different datasets under one common schema and facilitate analytics on all of the world's available, reliable data on the virus.
 
-        The nCovid Analysis Project has two main goals:  
-          1.  Create a central repository and schema for all of the reliable data reported in the world  
-          2.  Allow for queries and visualizations against this data
+        The **nCovid Analysis Project** has two main goals:  
+        &ensp;&ensp;1. Create a central repository and schema for all of the reliable data reported in the world  
+        &ensp;&ensp;2. Allow for queries and visualizations against this data  
+
         """
+    )
+
+
+def load_instructions(st):
+    st.subheader("Usage Guide")
+
+    st.markdown(
+        """
+    
+    There are two main types of filters here. We like to call them Metrics and Entities. A Metric is a measurement you 
+    want to query, and an Entity is the location to fetch that Metric for.  
+
+    Here, you can select multiple types and combinations of Metrics and Entities. We have also split up the Entities 
+    conveniently into either Countries, Provinces/States, and US Counties.  
+
+    Furthermore, we also provide the ability to *overlay* graphs. **This is optional**. However, it is a powerful feature. 
+    An overlay takes in a Metric and a threshold value, and for all of the Entities selected, will overlay the graphs together
+    as if they all hit the provided threshold value for the selected Metric at the same date. This helps us adjust graphs by date
+    and view them side by side. This feature becomes very interesting because the overlay Metric does **not** have to be incldued in the
+    Metrics selected to plot. For the sake of example, let's say we want to look at the curve of Deaths for New York and Italy. If we do not use the
+    overlay feature, we can get the plots but they are disjointed because the coronavirus reached New York and Italy at different times. Instead, we may
+    want to look at these curves, but **adjust** them as if they both hit 1000 Confirmed cases on the same day. This is a complicated query, but thanks to 
+    the overlay feature, it can be done (in English, but easily translatable to our **Query Builder**):  
+
+    > Plot Metrics=**Deaths**  
+    > for Entities=**Italy**, **New York**  
+    > overlay on Metric=**Confirmed** at Threshold=1000    
+
+
+    Note that some combinations of Metrics and Entities have no reported data. In this case, you will see a blank graph.  
+    Finally, if anything is broken or inconsistent, please do not hesitate to reach out.
+    """
     )
