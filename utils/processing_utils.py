@@ -13,13 +13,16 @@ STATE_COL = "Province/State"
 COUNTY_COL = "County"
 NEGATIVE_TEST_COL = "Negative Tests"
 TOTAL_TEST_COL = "Total Tests"
-HOSPITALIZED_COL = "Hospitalized"
+HOSPITALIZED_COL = "Hospitalized (cumulative)"
+CURRENT_HOSPITALIED_COL = "Hospitalized (current)"
 DELTA_COL_SUFFIX = " Daily Increase"
 ENTITY_COL = "Entity"
 MEASUREMENT_COL = "Value"
 DELTA_PERCENT_COL_SUFFIX = " Daily Increase(%)"
-ICU_COL = "In ICU"
-VENTILATOR_COL = "On Ventilator"
+CUM_ICU_COL = "ICU (cumulative)"
+CUM_VENTILATOR_COL = "Ventilator (cumulative)"
+CURR_ICU_COL = "ICU (current)"
+CURR_VENTILATOR_COL = "Ventilator (current)"
 
 
 MEASUREMENT_COLS = [
@@ -29,8 +32,11 @@ MEASUREMENT_COLS = [
     NEGATIVE_TEST_COL,
     TOTAL_TEST_COL,
     HOSPITALIZED_COL,
-    # ICU_COL,
-    # VENTILATOR_COL,
+    CUM_ICU_COL,
+    CUM_VENTILATOR_COL,
+    CURR_ICU_COL,
+    CURR_VENTILATOR_COL,
+    CURRENT_HOSPITALIED_COL,
 ]
 
 METRIC_DELTA_COLS = [col + DELTA_COL_SUFFIX for col in MEASUREMENT_COLS]
@@ -259,42 +265,58 @@ def stable_post_process_us_testing_df(df):
 
 
 def post_process_us_testing_df(df):
-    # print("US testing columns")
-    # print(df.columns)
     col_mapping = {
         "date": DATE_COL,
-        "state": STATE_COL,
         "negative": NEGATIVE_TEST_COL,
-        "cumulativeHospitalized": HOSPITALIZED_COL,
         "totalTestResults": TOTAL_TEST_COL,
+        "hospitalizedCumulative": HOSPITALIZED_COL,
         "negativeIncrease": NEGATIVE_TEST_COL + DELTA_COL_SUFFIX,
         "totalTestResultsIncrease": TOTAL_TEST_COL + DELTA_COL_SUFFIX,
         "hospitalizedIncrease": HOSPITALIZED_COL + DELTA_COL_SUFFIX,
-        "currentlyInIcu": ICU_COL,
-        "cumulativeOnVentilator": VENTILATOR_COL,
+        "inIcuCurrently": CURR_ICU_COL,
+        "inIcuCumulative": CUM_ICU_COL,
+        "onVentilatorCurrently": CURR_VENTILATOR_COL,
+        "onVentilatorCumulative": CUM_VENTILATOR_COL,
+        "hospitalizedCurrently": CURRENT_HOSPITALIED_COL,
     }
 
     df = df.rename(columns=col_mapping)
-
     df[COUNTRY_COL] = "United States"
     df[DATE_COL] = df[DATE_COL].astype(str)
     df[DATE_COL] = df[DATE_COL].apply(
         lambda d: datetime.datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")
     )
 
-    added_deltas = add_rolling_diff(
+    df = add_rolling_diff(
         df,
         sort_cols=[DATE_COL],
         diff_group_cols=[COUNTRY_COL],
-        agg_cols=[ICU_COL, VENTILATOR_COL],
+        agg_cols=[
+            CURR_ICU_COL,
+            CURR_VENTILATOR_COL,
+            CUM_ICU_COL,
+            CUM_VENTILATOR_COL,
+            CURRENT_HOSPITALIED_COL,
+        ],
     )
 
-    return add_percent_change(
-        added_deltas,
+    df = add_percent_change(
+        df,
         sort_cols=[DATE_COL],
         diff_group_cols=[COUNTRY_COL],
-        agg_cols=[NEGATIVE_TEST_COL, TOTAL_TEST_COL, HOSPITALIZED_COL,],
+        agg_cols=[
+            NEGATIVE_TEST_COL,
+            TOTAL_TEST_COL,
+            HOSPITALIZED_COL,
+            CURR_ICU_COL,
+            CURRENT_HOSPITALIED_COL,
+            CURR_VENTILATOR_COL,
+            CUM_ICU_COL,
+            CUM_VENTILATOR_COL,
+        ],
     )
+
+    return df
 
 
 def stable_post_process_state_testing_df(df):
@@ -340,22 +362,24 @@ def stable_post_process_state_testing_df(df):
 
 
 def post_process_state_testing_df(df):
-    # print("US state testing columns")
-    # print(df.columns)
     col_mapping = {
         "date": DATE_COL,
         "state": STATE_COL,
         "negative": NEGATIVE_TEST_COL,
         "positive": CONFIRMED_COL,
         "death": DEATHS_COL,
-        "cumulativeHospitalized": HOSPITALIZED_COL,
+        "hospitalizedCumulative": HOSPITALIZED_COL,
         "totalTestResults": TOTAL_TEST_COL,
         "positiveIncrease": CONFIRMED_COL + DELTA_COL_SUFFIX,
         "negativeIncrease": NEGATIVE_TEST_COL + DELTA_COL_SUFFIX,
         "totalTestResultsIncrease": TOTAL_TEST_COL + DELTA_COL_SUFFIX,
+        "hospitalizedIncrease": HOSPITALIZED_COL + DELTA_COL_SUFFIX,
         "deathIncrease": DEATHS_COL + DELTA_COL_SUFFIX,
-        "cumulativeInIcu": ICU_COL,
-        "cumulativeOnVentilator": VENTILATOR_COL,
+        "inIcuCurrently": CURR_ICU_COL,
+        "inIcuCumulative": CUM_ICU_COL,
+        "onVentilatorCurrently": CURR_VENTILATOR_COL,
+        "onVentilatorCumulative": CUM_VENTILATOR_COL,
+        "hospitalizedCurrently": CURRENT_HOSPITALIED_COL,
     }
 
     df = df.rename(columns=col_mapping)
@@ -368,15 +392,23 @@ def post_process_state_testing_df(df):
         lambda abbrev: STATE_MAPPING[abbrev] if abbrev in STATE_MAPPING else abbrev
     )
 
-    added_deltas = add_rolling_diff(
+    df[STATE_COL] = df.apply(lambda row: row[STATE_COL] + " (United States)", axis=1)
+
+    df = add_rolling_diff(
         df,
         sort_cols=[DATE_COL, STATE_COL],
         diff_group_cols=[STATE_COL],
-        agg_cols=[ICU_COL, VENTILATOR_COL, HOSPITALIZED_COL],
+        agg_cols=[
+            CURR_ICU_COL,
+            CURR_VENTILATOR_COL,
+            CURRENT_HOSPITALIED_COL,
+            CUM_ICU_COL,
+            CUM_VENTILATOR_COL,
+        ],
     )
 
     return add_percent_change(
-        added_deltas,
+        df,
         sort_cols=[DATE_COL, STATE_COL],
         diff_group_cols=[STATE_COL],
         agg_cols=[
@@ -385,8 +417,11 @@ def post_process_state_testing_df(df):
             DEATHS_COL,
             TOTAL_TEST_COL,
             HOSPITALIZED_COL,
-            ICU_COL,
-            VENTILATOR_COL,
+            CURR_ICU_COL,
+            CURR_VENTILATOR_COL,
+            CUM_ICU_COL,
+            CUM_VENTILATOR_COL,
+            CURRENT_HOSPITALIED_COL,
         ],
     )
 
