@@ -78,10 +78,14 @@ st.header("Raw Data")
 data_cell = st.empty()
 
 ### Set up the side bar ###
-st.sidebar.title("Query Builder")
-st.sidebar.header("Select Metric(s):")
+st.sidebar.markdown(
+        """**QueryBuilder [v1.1](https://github.com/twang126/coviz)**"""
+)
+st.sidebar.markdown(
+        """### Select Metric(s): """
+)
 metrics_selector = st.sidebar.multiselect(
-    "",
+    "Type(s) of data to plot",
     dropdown_options[processing_utils.MEASUREMENT_COL],
     default=[
         processing_utils.CONFIRMED_COL,
@@ -90,7 +94,9 @@ metrics_selector = st.sidebar.multiselect(
     ],
 )
 
-st.sidebar.header("Select Entities:")
+st.sidebar.markdown(
+        """### Select Entities: """
+)
 st.sidebar.text("Note: You can leave options empty.")
 countries = st.sidebar.multiselect(
     processing_utils.COUNTRY_COL + "s:",
@@ -107,17 +113,17 @@ counties = st.sidebar.multiselect(
     dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
 )
 
-st.sidebar.header("Overlay (Optional):")
+st.sidebar.markdown(
+        """### Overlay (Optional):"""
+)
 overlay_checkbox = st.sidebar.checkbox("Apply overlay")
 
 if overlay_checkbox:
-    st.sidebar.subheader("Select overlay Metric:")
     overlay_metric = st.sidebar.selectbox(
-        label="", options=dropdown_options[processing_utils.MEASUREMENT_COL],
+        label="Overlay Metric:", options=dropdown_options[processing_utils.MEASUREMENT_COL],
     )
 
-    st.sidebar.subheader("Set overlay threshold:")
-    overlay_threshold = st.sidebar.number_input(label="")
+    overlay_threshold = st.sidebar.number_input(label="Overlay Threshold:")
 else:
     overlay_metric = None
     overlay_threshold = None
