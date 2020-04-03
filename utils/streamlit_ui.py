@@ -3,6 +3,18 @@ from utils import processing_utils
 
 import altair as alt
 
+default_metrics = [
+    processing_utils.CONFIRMED_COL,
+    processing_utils.DEATHS_COL,
+    processing_utils.RECOVERED_COL,
+]
+
+default_country = ["World"]
+default_states = []
+default_county = []
+default_overlay_metric = 0
+default_overlay_threshold = 0
+
 
 def add_header_and_title(st):
     st.title("The COVID-19 Analysis Project")
@@ -18,8 +30,9 @@ def add_header_and_title(st):
 
         The **COVID-19 Analysis Project** has two main goals:  
         &ensp;&ensp;1. Create a central repository and schema for all of the reliable data reported in the world  
-        &ensp;&ensp;2. Allow for queries and visualizations against this data  
+        &ensp;&ensp;2. Allow for queries and visualizations against this data    
 
+        **We recommend you start by reading the guide below.**
         """
     )
 
@@ -31,7 +44,8 @@ def load_instructions(st):
         """
     
     There are two main types of filters here. We like to call them Metrics and Entities. A Metric is a measurement you 
-    want to query, and an Entity is the location to fetch that Metric for.  
+    want to query, and an Entity is the location to fetch that Metric for.  For example, a Metric would be **Confirmed** cases
+    and an Entity would be the **United States**.
 
     Here, you can select multiple types and combinations of Metrics and Entities. We have also split up the Entities 
     conveniently into either Countries, Provinces/States, and US Counties.  
@@ -39,21 +53,31 @@ def load_instructions(st):
     Furthermore, we also provide the ability to *overlay* graphs. **This is optional**. However, it is a powerful feature. 
     An overlay takes in a Metric and a threshold value, and for all of the Entities selected, will overlay the graphs together
     as if they all hit the provided threshold value for the selected Metric at the same date. This helps us adjust graphs by date
-    and view them side by side. This feature becomes very interesting because the overlay Metric does **not** have to be incldued in the
+    and view them side by side. This feature becomes very interesting because the overlay Metric does **not** have to be included in the
     Metrics selected to plot. For the sake of example, let's say we want to look at the curve of Deaths for New York and Italy. If we do not use the
     overlay feature, we can get the plots but they are disjointed because the coronavirus reached New York and Italy at different times. Instead, we may
     want to look at these curves, but **adjust** them as if they both hit 1000 Confirmed cases on the same day. This is a complicated query, but thanks to 
     the overlay feature, it can be done (in English, but easily translatable to our **Query Builder**):  
 
-    > Plot Metrics=**Deaths**  
-    > for Entities=**Italy**, **New York**  
-    > overlay on Metric=**Confirmed** at Threshold=1000    
+    &ensp;&ensp;> Plot Metrics=**Deaths**  
+    &ensp;&ensp;> for Entities=**Italy**, **New York**  
+    &ensp;&ensp;> overlay on Metric=**Confirmed** at Threshold=1000    
 
 
-    Note that some combinations of Metrics and Entities have no reported data. In this case, you will see a blank graph.  
-    Finally, if anything is broken or inconsistent, please do not hesitate to reach out.
+    Note that some combinations of Metrics and Entities have no reported data. In this case, you will see a blank graph.    
+
+    Finally, if anything is broken or inconsistent, please do not hesitate to reach out.  
     """
     )
+
+
+def load_entity_to_metrics_mapping(st):
+    st.subheader("Entity to available Metrics:")
+
+    mapping = processing_utils.ENTITY_TO_METRICS
+    for entity, metrics in mapping.items():
+        st.markdown(entity)
+        st.write(sorted(metrics))
 
 
 def get_default_index(term, lst):

@@ -30,6 +30,7 @@ def get_international_dataset():
 
 
 def get_historical_us_testing_data():
+    print("Getting historical US data")
     suffix = "us/daily.csv"
 
     r = requests.get(US_TESTING_DATA_ROOT_URL + suffix)
@@ -38,6 +39,7 @@ def get_historical_us_testing_data():
 
 
 def get_historical_states_testing_data():
+    print("Getting states data")
     suffix = "states/daily.csv"
     r = requests.get(US_TESTING_DATA_ROOT_URL + suffix)
     csv_string = r.content
@@ -46,3 +48,15 @@ def get_historical_states_testing_data():
 
 def get_historical_county_level_data():
     return pd.read_csv(COUNTY_LEVEL_DATA_URL)
+
+
+def get_johns_hopkins_county_level_data():
+    print("Getting johns hopkins data")
+    deaths = pd.read_csv(
+        "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
+    )
+    confirmed = pd.read_csv(
+        "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
+    )
+
+    return deaths, confirmed

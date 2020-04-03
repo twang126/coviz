@@ -44,9 +44,15 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 state = session_state.get(
     prev_request=streamlit_ui.get_default_request(),
+    data=None,
     key=0,
-    data_obj=None,
     dropdown_options=None,
+    metrics=streamlit_ui.default_metrics,
+    country=streamlit_ui.default_country,
+    states=streamlit_ui.default_states,
+    county=streamlit_ui.default_county,
+    overlay_metric=streamlit_ui.default_overlay_metric,
+    overlay_threshold=streamlit_ui.default_overlay_threshold,
 )
 
 
@@ -67,15 +73,14 @@ curr_time = get_hours_from_epoch()
 
 streamlit_ui.add_header_and_title(st)
 
-if st.checkbox("View Usage Guide"):
+if st.checkbox("Show instructions"):
     streamlit_ui.load_instructions(st)
 
-if (
-    state.data_obj is None
-    or state.dropdown_options is None
-    or state.data_obj.should_update()
-):
-    state.data_obj, state.dropdown_options = load_data(curr_time)
+if st.checkbox("Show Entity to Metrics mapping"):
+    streamlit_ui.load_entity_to_metrics_mapping(st)
+
+if state.data is None:
+    state.data, state.dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
 st.markdown("""### Graph ### """)
@@ -103,58 +108,69 @@ overlay_box = st.sidebar.empty()
 overlay_metric_selector = st.sidebar.empty()
 overlay_threshold_box = st.sidebar.empty()
 
+<<<<<<< HEAD
 log_checkbox = st.sidebar.checkbox("Logarithmic Scale (default: linear)")
 plot_button = st.sidebar.button("Plot Graph")
+=======
+
+plot_button = st.sidebar.button("Plot")
+>>>>>>> 157a82dcfcc5a6d94f212d3f694f6f9846fa66d4
 reset_button = st.sidebar.button("Reset")
 graph_alerts_cell = st.sidebar.empty()
 
 #### Define the reset button
 if reset_button:
     state.key = state.key + 1
+    state.country = streamlit_ui.default_country
+    state.county = streamlit_ui.default_county
+    state.states = streamlit_ui.default_states
+    state.metrics = streamlit_ui.default_metrics
+    state.overlay_metric = streamlit_ui.default_overlay_metric
+    state.overlay_threshold = streamlit_ui.default_overlay_threshold
+
     state.prev_request = streamlit_ui.get_default_request()
 
 ### Actually implement the selector menus
 metrics = metrics_selector.multiselect(
     "Type(s) of data to plot",
     state.dropdown_options[processing_utils.MEASUREMENT_COL],
-    default=[
-        processing_utils.CONFIRMED_COL,
-        processing_utils.DEATHS_COL,
-        processing_utils.RECOVERED_COL,
-    ],
+    default=state.metrics,
     key=state.key,
 )
 
 countries = countries_selector.multiselect(
     processing_utils.COUNTRY_COL + "s:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
-    default=["World"],
+    default=state.country,
     key=state.key,
 )
 
 states = states_selector.multiselect(
     processing_utils.STATE_COL + "s:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
+    default=state.states,
     key=state.key,
 )
 
 counties = counties_selector.multiselect(
     "US Counties:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
+    default=state.county,
     key=state.key,
 )
 
-overlay_checkbox = overlay_box.checkbox("Enable overlay")
+overlay_checkbox = overlay_box.checkbox("Add overlay")
 
 if overlay_checkbox:
     overlay_metric = overlay_metric_selector.selectbox(
         label="Overlay Metric:",
         options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
         key=state.key,
+        index=state.overlay_metric,
     )
 
     overlay_threshold = overlay_threshold_box.number_input(
-        label="Overlay Threshold:", key=state.key
+        label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
     )
 else:
     overlay_metric = None
@@ -162,7 +178,7 @@ else:
 
 ## Add the default plot
 default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
-    data_obj=state.data_obj, request=state.prev_request
+    data_obj=state.data, request=state.prev_request
 )
 default_chart = graphing.build_chart(source=default_source_df)
 graph_cell.altair_chart(default_chart)
@@ -179,11 +195,25 @@ if plot_button:
         overlay_threshold,
     )
 
+    state.country = countries
+    state.county = counties
+    state.states = states
+    state.metrics = metrics
+
+    if overlay_checkbox:
+        state.overlay_metric = streamlit_ui.get_default_index(
+            overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
+        )
+        state.overlay_threshold = overlay_threshold
+    else:
+        state.overlay_metric = streamlit_ui.default_overlay_metric
+        state.overlay_threshold = streamlit_ui.default_overlay_threshold
+
     successfully_updated_chart = False
 
     if data_fetcher.is_valid_data_fetch_request(request):
         df, displayable_data = data_fetcher.process_request_dict(
-            data_obj=state.data_obj, request=request
+            data_obj=state.data, request=request
         )
 
         if df is not None:
@@ -226,4 +256,4 @@ if plot_button:
             "**Failed to update**: no data returned for that query."
         )
     else:
-        graph_alerts_cell.markdown("")
+        graph_alerts_cell.success("Query succeeded!")

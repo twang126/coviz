@@ -1,6 +1,7 @@
 from utils import processing_utils
 import pandas as pd
 import altair as alt
+import math
 
 
 def process_request_dict(data_obj, request):
@@ -147,14 +148,27 @@ def fetch_streamlit_raw_data_display(displayable_data):
                     "max": df[processing_utils.MEASUREMENT_COL].max(),
                     "nonzero-min": df[df[processing_utils.MEASUREMENT_COL] > 0][
                         processing_utils.MEASUREMENT_COL
-                    ].min(),
+                    ].min()
+                    if not math.isnan(
+                        df[df[processing_utils.MEASUREMENT_COL] > 0][
+                            processing_utils.MEASUREMENT_COL
+                        ].min()
+                    )
+                    else 0.0,
                     "mean": df[processing_utils.MEASUREMENT_COL].mean(),
                 }
+
                 entity_to_metric_to_boxplots[entity][metric]["Within the last week"] = {
                     "max": last_week[processing_utils.MEASUREMENT_COL].max(),
                     "nonzero-min": last_week[
                         last_week[processing_utils.MEASUREMENT_COL] > 0
-                    ][processing_utils.MEASUREMENT_COL].min(),
+                    ][processing_utils.MEASUREMENT_COL].min()
+                    if not math.isnan(
+                        last_week[last_week[processing_utils.MEASUREMENT_COL] > 0][
+                            processing_utils.MEASUREMENT_COL
+                        ].min()
+                    )
+                    else 0.0,
                     "mean": last_week[processing_utils.MEASUREMENT_COL].mean(),
                     "number of days": len(last_week),
                 }
