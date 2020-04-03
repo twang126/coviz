@@ -12,6 +12,7 @@ from utils import streamlit_ui
 from utils import session_state
 
 import time
+import random
 
 hide_menu_style = """
         <style>
@@ -207,48 +208,51 @@ if plot_button:
     successfully_updated_chart = False
 
     if data_fetcher.is_valid_data_fetch_request(request):
-        df, displayable_data = data_fetcher.process_request_dict(
-            data_obj=state.data, request=request
-        )
-
-        if df is not None:
-            chart = graphing.build_chart(source=df)
-
-            graph_cell.altair_chart(chart)
-            successfully_updated_chart = True
-
-            # Set the default plot
-            state.prev_request = request
-            all_dataframes, all_plots = data_fetcher.fetch_streamlit_raw_data_display(
-                displayable_data
+        with st.spinner("Fetching results..."):
+            df, displayable_data = data_fetcher.process_request_dict(
+                data_obj=state.data, request=request
             )
 
-            st.markdown("""### Data ### """)
+            if df is not None:
+                chart = graphing.build_chart(source=df)
 
-            if len(all_plots) > 0:
-                st.header("Descriptive statistics for rate of change metrics")
+                graph_cell.altair_chart(chart)
+                successfully_updated_chart = True
 
-                for entity, metric_to_plot in all_plots.items():
-                    st.subheader(entity)
+                # Set the default plot
+                state.prev_request = request
+                (
+                    all_dataframes,
+                    all_plots,
+                ) = data_fetcher.fetch_streamlit_raw_data_display(displayable_data)
 
-                    for metric, stats_dict in metric_to_plot.items():
-                        st.markdown(metric)
-                        st.write(stats_dict)
+                # Pretend like we are processing
+                time.sleep(float(random.randint(25, 120)) / 100)
 
-            if len(all_dataframes) > 0:
+                st.markdown("""### Data ### """)
 
-                for entity, metric_to_dataframe in all_dataframes.items():
-                    st.subheader(entity)
+                if len(all_plots) > 0:
+                    st.header("Descriptive statistics for rate of change metrics")
 
-                    for metric, df in metric_to_dataframe.items():
-                        df = df.rename(
-                            columns={processing_utils.MEASUREMENT_COL: metric}
-                        )
-                        st.write(df)
+                    for entity, metric_to_plot in all_plots.items():
+                        st.subheader(entity)
+
+                        for metric, stats_dict in metric_to_plot.items():
+                            st.markdown(metric)
+                            st.write(stats_dict)
+
+                if len(all_dataframes) > 0:
+
+                    for entity, metric_to_dataframe in all_dataframes.items():
+                        st.subheader(entity)
+
+                        for metric, df in metric_to_dataframe.items():
+                            df = df.rename(
+                                columns={processing_utils.MEASUREMENT_COL: metric}
+                            )
+                            st.write(df)
 
     if not successfully_updated_chart:
-        graph_alerts_cell.markdown(
-            "**Failed to update**: no data returned for that query."
-        )
+        graph_alerts_cell.warning("Failed to update: no data returned for that query.")
     else:
         graph_alerts_cell.success("Query succeeded!")
