@@ -13,6 +13,7 @@ class Data:
         self.us_testing_df = None
         self.us_states_testing_df = None
         self.us_county_df = None
+        self.us_county_deaths_df = None
         self.CovidDf = None
         self.last_update = None
 
@@ -81,19 +82,16 @@ class Data:
 
         print("Finished US and states DF")
 
-        (
-            county_deaths,
-            county_confirmed,
-        ) = api_utils.get_johns_hopkins_county_level_data()
-        self.us_county_df = processing_utils.post_process_county_df_jhu(
-            county_deaths, county_confirmed, overwrite=overwrite
+        county_deaths = api_utils.get_johns_hopkins_county_level_data()
+        self.us_county_deaths_df = processing_utils.post_process_county_df_deaths_jhu(
+            county_deaths, overwrite=overwrite
         )
 
         # Covid data per US county
         # Source: NY Times
-        # self.us_county_df = processing_utils.post_process_county_df(
-        #     api_utils.get_historical_county_level_data()
-        # )
+        self.us_county_df = processing_utils.post_process_county_df(
+            api_utils.get_historical_county_level_data()
+        )
 
         print("Finished county df")
 
@@ -106,5 +104,6 @@ class Data:
                 self.us_testing_df,
                 self.us_states_testing_df,
                 self.us_county_df,
+                self.us_county_deaths_df,
             ]
         )

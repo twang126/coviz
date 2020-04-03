@@ -486,7 +486,6 @@ def post_process_county_df(df, poll=False):
         "county": COUNTY_COL,
         "state": STATE_COL,
         "cases": CONFIRMED_COL,
-        "deaths": DEATHS_COL,
     }
 
     renamed_df = df.rename(columns=col_mapping)
@@ -498,120 +497,76 @@ def post_process_county_df(df, poll=False):
         renamed_df,
         sort_cols=[DATE_COL, COUNTY_COL],
         diff_group_cols=[COUNTY_COL],
-        agg_cols=[CONFIRMED_COL, DEATHS_COL],
+        agg_cols=[CONFIRMED_COL],
     )
 
     return add_percent_change(
         renamed_df,
         sort_cols=[DATE_COL, COUNTY_COL],
         diff_group_cols=[COUNTY_COL],
-        agg_cols=[CONFIRMED_COL, DEATHS_COL],
+        agg_cols=[CONFIRMED_COL],
     )
 
 
-def post_process_county_df_jhu(deaths, confirmed, overwrite=False):
+def post_process_county_df_deaths_jhu(deaths, overwrite=False):
+    def reformat_date(old):
+        old_date = old.split("/")
+        yyyy = "20" + old_date[2]
+        mm = "0" + old_date[0] if len(old_date[0]) == 1 else old_date[0]
+        dd = "0" + old_date[1] if len(old_date[0]) == 1 else old_date[1]
+        return yyyy + "-" + mm + "-" + dd
+
     print("Starting to postprocess JHU")
-    if overwrite or not os.path.isfile(io_utils.JHU_CSV_PATH):
-        print("OVERWRITING JHU CSV")
-        death_id_cols = [
-            "UID",
-            "iso2",
-            "iso3",
-            "code3",
-            "FIPS",
-            "Admin2",
-            "Province_State",
-            "Country_Region",
-            "Lat",
-            "Long_",
-            "Combined_Key",
-            "Population",
-        ]
+    death_id_cols = [
+        "UID",
+        "iso2",
+        "iso3",
+        "code3",
+        "FIPS",
+        "Admin2",
+        "Province_State",
+        "Country_Region",
+        "Lat",
+        "Long_",
+        "Combined_Key",
+        "Population",
+    ]
 
-        melted_deaths = pd.melt(
-            deaths, id_vars=death_id_cols, var_name=DATE_COL, value_name=DEATHS_COL
-        )
-        melted_deaths["Admin2"].fillna("", inplace=True)
-        melted_deaths = melted_deaths[
-            (melted_deaths["Admin2"] != "Unassigned")
-            & ~(melted_deaths["Admin2"].str.contains("Out of"))
-        ]
-        melted_deaths.rename(
-            columns={"Admin2": "County", "Province_State": "Province/State"},
-            inplace=True,
-        )
+    melted_deaths = pd.melt(
+        deaths, id_vars=death_id_cols, var_name=DATE_COL, value_name=DEATHS_COL
+    )
+    melted_deaths["Admin2"].fillna("", inplace=True)
+    melted_deaths = melted_deaths[
+        (melted_deaths["Admin2"] != "Unassigned")
+        & ~(melted_deaths["Admin2"].str.contains("Out of"))
+    ]
+    melted_deaths.rename(
+        columns={"Admin2": "County", "Province_State": "Province/State"}, inplace=True,
+    )
 
-        # Process confirmed df
-        confirmed_id_cols = [
-            "UID",
-            "iso2",
-            "iso3",
-            "code3",
-            "FIPS",
-            "Admin2",
-            "Province_State",
-            "Country_Region",
-            "Lat",
-            "Long_",
-            "Combined_Key",
-        ]
+    melted_deaths["County"] = melted_deaths.apply(
+        lambda row: row["County"] + " (" + row["Province/State"] + ")", axis=1
+    )
 
-        confirmed_melted = pd.melt(
-            confirmed,
-            id_vars=confirmed_id_cols,
-            var_name=DATE_COL,
-            value_name=CONFIRMED_COL,
-        )
-        confirmed_melted.rename(
-            columns={"Admin2": "County", "Province_State": "Province/State"},
-            inplace=True,
-        )
-        confirmed_melted["County"].fillna("", inplace=True)
-        confirmed_melted = confirmed_melted[
-            (confirmed_melted["County"] != "Unassigned")
-            & ~confirmed_melted["County"].str.contains("Out of")
-        ]
-        county_confirmed = confirmed_melted[
-            ["FIPS", "UID", "County", "Province/State", "Date", "Confirmed"]
-        ]
-        merged = county_confirmed.merge(
-            melted_deaths, how="outer", on=["UID", DATE_COL]
-        )
+    melted_deaths = melted_deaths[["County", "Deaths", "Date"]]
 
-        merged.rename(
-            columns={"Province/State_x": "Province/State", "County_x": "County"},
-            inplace=True,
-        )
-        merged["County"] = merged.apply(
-            lambda row: row["Province/State"]
-            if row["County"] == ""
-            else row["County"] + " (" + row["Province/State"] + ")",
-            axis=1,
-        )
-        merged = merged[["County", "Deaths", "Confirmed", "Date"]]
+    melted_deaths["Date"] = melted_deaths["Date"].apply(lambda d: reformat_date(d))
 
-        merged["Date"] = pd.to_datetime(merged["Date"])
-        merged["Date"] = merged["Date"].apply(lambda d: d.strftime("%Y-%m-%d"))
+    renamed_df = add_rolling_diff(
+        melted_deaths,
+        sort_cols=[DATE_COL, COUNTY_COL],
+        diff_group_cols=[COUNTY_COL],
+        agg_cols=[DEATHS_COL],
+    )
 
-        renamed_df = add_rolling_diff(
-            merged,
-            sort_cols=[DATE_COL, COUNTY_COL],
-            diff_group_cols=[COUNTY_COL],
-            agg_cols=[CONFIRMED_COL, DEATHS_COL],
-        )
+    renamed_df = add_percent_change(
+        renamed_df,
+        sort_cols=[DATE_COL, COUNTY_COL],
+        diff_group_cols=[COUNTY_COL],
+        agg_cols=[DEATHS_COL],
+    )
 
-        renamed_df = add_percent_change(
-            renamed_df,
-            sort_cols=[DATE_COL, COUNTY_COL],
-            diff_group_cols=[COUNTY_COL],
-            agg_cols=[CONFIRMED_COL, DEATHS_COL],
-        )
-
-        io_utils.save_csv("JHU", renamed_df)
-        return renamed_df
-    else:
-        print("READING CACHED JHU CSV FILE")
-        return io_utils.read_csv("JHU")
+    return renamed_df
 
 
 def add_rolling_diff(df, sort_cols, diff_group_cols, agg_cols):
