@@ -5,7 +5,7 @@ import altair as alt
 from utils import processing_utils
 
 
-def build_chart(source,  linear = True):
+def build_chart(source):
     x_col_str_label = processing_utils.DATE_COL + ":T"
     y_col_str_label = processing_utils.MEASUREMENT_COL + ":Q"
     category_str_label = processing_utils.CATEGORY_GRAPHING_COL + ":N"
@@ -20,16 +20,11 @@ def build_chart(source,  linear = True):
         empty="none",
     )
 
-    if linear:
-        scale=alt.Scale(type='linear')
-    else:
-        scale=alt.Scale(type='log')
-
     # The basic line
     line = (
         alt.Chart(source)
         .mark_line(interpolate="natural")
-        .encode(alt.X(x_col_str_label), alt.Y(y_col_str_label, scale=scale), color=alt.Color(category_str_label, legend=alt.Legend(offset=50)))
+        .encode(alt.X(x_col_str_label), alt.Y(y_col_str_label,), color=alt.Color(category_str_label, legend=alt.Legend(offset=50)))
     )
 
     # Transparent selectors across the chart. This is what tells us
@@ -45,7 +40,6 @@ def build_chart(source,  linear = True):
     points = line.mark_point().encode(
         opacity=alt.condition(nearest, alt.value(1), alt.value(0)), 
     )
-
 
     # Draw text labels near the points, and highlight based on selection
     text = line.mark_text(align="left", dx=5, dy=-5).encode(

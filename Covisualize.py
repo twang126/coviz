@@ -108,13 +108,8 @@ overlay_box = st.sidebar.empty()
 overlay_metric_selector = st.sidebar.empty()
 overlay_threshold_box = st.sidebar.empty()
 
-<<<<<<< HEAD
-log_checkbox = st.sidebar.checkbox("Logarithmic Scale (default: linear)")
-plot_button = st.sidebar.button("Plot Graph")
-=======
-
 plot_button = st.sidebar.button("Plot")
->>>>>>> 157a82dcfcc5a6d94f212d3f694f6f9846fa66d4
+
 reset_button = st.sidebar.button("Reset")
 graph_alerts_cell = st.sidebar.empty()
 
@@ -217,7 +212,7 @@ if plot_button:
         )
 
         if df is not None:
-            chart = graphing.build_chart(source=df, linear= not log_checkbox)
+            chart = graphing.build_chart(source=df)
 
             graph_cell.altair_chart(chart)
             successfully_updated_chart = True
