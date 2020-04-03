@@ -2,6 +2,7 @@ from utils import processing_utils
 import pandas as pd
 import altair as alt
 import math
+from functools import reduce
 
 
 def process_request_dict(data_obj, request):
@@ -128,11 +129,11 @@ def fetch_streamlit_raw_data_display(displayable_data):
 
                 entities_to_metrics_to_dataframes[entity][metric].append(rows)
 
-    entity_to_metric_to_displayable_df = {}
+    entity_to_df = {}
     entity_to_metric_to_boxplots = {}
 
     for entity, metric_dict in entities_to_metrics_to_dataframes.items():
-        entity_to_metric_to_displayable_df[entity] = {}
+        entity_to_df[entity] = []
 
         for metric, list_of_dfs in metric_dict.items():
             df = pd.concat(list_of_dfs)
@@ -176,8 +177,18 @@ def fetch_streamlit_raw_data_display(displayable_data):
             columned = df[
                 [processing_utils.DATE_COL, processing_utils.MEASUREMENT_COL]
             ].copy()
-            entity_to_metric_to_displayable_df[entity][metric] = columned.sort_values(
-                by=processing_utils.DATE_COL, inplace=False, ascending=False
+
+            columned.rename(
+                columns={processing_utils.MEASUREMENT_COL: metric}, inplace=True
             )
 
-    return entity_to_metric_to_displayable_df, entity_to_metric_to_boxplots
+            entity_to_df[entity].append(columned)
+
+        entity_to_df[entity] = reduce(
+            lambda left, right: pd.merge(
+                left, right, on=processing_utils.DATE_COL, how="outer"
+            ),
+            entity_to_df[entity],
+        )
+
+    return entity_to_df, entity_to_metric_to_boxplots

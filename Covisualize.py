@@ -242,15 +242,9 @@ if plot_button:
                         st.write(stats_dict)
 
             if len(all_dataframes) > 0:
-
-                for entity, metric_to_dataframe in all_dataframes.items():
+                for entity, df in all_dataframes.items():
                     st.subheader(entity)
-
-                    for metric, df in metric_to_dataframe.items():
-                        df = df.rename(
-                            columns={processing_utils.MEASUREMENT_COL: metric}
-                        )
-                        st.write(df)
+                    st.write(df)
 
     if not successfully_updated_chart:
         graph_alerts_cell.warning("Failed to update: no data returned for that query.")
