@@ -36,6 +36,8 @@ class Data:
 
         self.world_df = processing_utils.create_world_df(self.raw_global_df.copy())
 
+        print("Finished world data")
+
         self.international_df = processing_utils.post_process_international_df(
             self.raw_global_df.copy()
         )
@@ -43,6 +45,8 @@ class Data:
         self.international_states_df = processing_utils.post_process_international_states_df(
             self.raw_global_df.copy(), self.international_df.copy()
         )
+
+        print("Finished international df")
 
         # US testing dataset
         # Source: https://covidtracking.com/api/
@@ -69,19 +73,23 @@ class Data:
                 api_utils.get_historical_states_testing_data()
             )
 
-        (
-            county_deaths,
-            county_confirmed,
-        ) = api_utils.get_johns_hopkins_county_level_data()
-        self.us_county_df = processing_utils.post_process_county_df_jhu(
-            county_deaths, county_confirmed
-        )
+        print("Finished US and states DF")
+
+        # (
+        #     county_deaths,
+        #     county_confirmed,
+        # ) = api_utils.get_johns_hopkins_county_level_data()
+        # self.us_county_df = processing_utils.post_process_county_df_jhu(
+        #     county_deaths, county_confirmed
+        # )
 
         # Covid data per US county
         # Source: NY Times
-        # self.us_county_df = processing_utils.post_process_county_df(
-        #     api_utils.get_historical_county_level_data()
-        # )
+        self.us_county_df = processing_utils.post_process_county_df(
+            api_utils.get_historical_county_level_data()
+        )
+
+        print("Finished county df")
 
         # Wrapper class for all of the different data sources
         self.CovidDf = CovidData(
