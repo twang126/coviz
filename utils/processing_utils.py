@@ -1,5 +1,6 @@
 import datetime
 import numpy as np
+import pandas as pd
 from functools import cmp_to_key
 
 CATEGORY_GRAPHING_COL = "Data"
@@ -442,6 +443,95 @@ def post_process_county_df(df):
     renamed_df = renamed_df.drop([STATE_COL], inplace=False, axis=1)
     renamed_df = add_rolling_diff(
         renamed_df,
+        sort_cols=[DATE_COL, COUNTY_COL],
+        diff_group_cols=[COUNTY_COL],
+        agg_cols=[CONFIRMED_COL, DEATHS_COL],
+    )
+
+    return add_percent_change(
+        renamed_df,
+        sort_cols=[DATE_COL, COUNTY_COL],
+        diff_group_cols=[COUNTY_COL],
+        agg_cols=[CONFIRMED_COL, DEATHS_COL],
+    )
+
+
+def post_process_county_df_jhu(deaths, confirmed):
+    death_id_cols = [
+        "UID",
+        "iso2",
+        "iso3",
+        "code3",
+        "FIPS",
+        "Admin2",
+        "Province_State",
+        "Country_Region",
+        "Lat",
+        "Long_",
+        "Combined_Key",
+        "Population",
+    ]
+
+    melted_deaths = pd.melt(
+        deaths, id_vars=death_id_cols, var_name=DATE_COL, value_name=DEATHS_COL
+    )
+    melted_deaths["Admin2"] = melted_deaths["Admin2"].fillna("")
+    melted_deaths = melted_deaths[(melted_deaths["Admin2"] != "Unassigned")]
+    melted_deaths = melted_deaths[~melted_deaths["Admin2"].str.contains("Out of")]
+    melted_deaths = melted_deaths.rename(
+        columns={"Admin2": "County", "Province_State": "Province/State"}
+    )
+
+    # Process confirmed df
+    confirmed_id_cols = [
+        "UID",
+        "iso2",
+        "iso3",
+        "code3",
+        "FIPS",
+        "Admin2",
+        "Province_State",
+        "Country_Region",
+        "Lat",
+        "Long_",
+        "Combined_Key",
+    ]
+
+    confirmed_melted = pd.melt(
+        confirmed,
+        id_vars=confirmed_id_cols,
+        var_name=DATE_COL,
+        value_name=CONFIRMED_COL,
+    )
+    confirmed_melted = confirmed_melted.rename(
+        columns={"Admin2": "County", "Province_State": "Province/State"}
+    )
+    confirmed_melted["County"] = confirmed_melted["County"].fillna("")
+    confirmed_melted = confirmed_melted[(confirmed_melted["County"] != "Unassigned")]
+    confirmed_melted = confirmed_melted[
+        ~confirmed_melted["County"].str.contains("Out of")
+    ]
+    county_confirmed = confirmed_melted[
+        ["FIPS", "UID", "County", "Province/State", "Date", "Confirmed"]
+    ]
+    merged = county_confirmed.merge(melted_deaths, how="outer", on=["UID", DATE_COL])
+
+    merged = merged.rename(
+        columns={"Province/State_x": "Province/State", "County_x": "County"}
+    )
+    merged["County"] = merged.apply(
+        lambda row: row["Province/State"]
+        if row["County"] == ""
+        else row["County"] + " (" + row["Province/State"] + ")",
+        axis=1,
+    )
+    merged = merged[["County", "Deaths", "Confirmed", "Date"]]
+
+    merged["Date"] = pd.to_datetime(merged["Date"])
+    merged["Date"] = merged["Date"].apply(lambda d: d.strftime("%Y-%m-%d"))
+
+    renamed_df = add_rolling_diff(
+        merged,
         sort_cols=[DATE_COL, COUNTY_COL],
         diff_group_cols=[COUNTY_COL],
         agg_cols=[CONFIRMED_COL, DEATHS_COL],
