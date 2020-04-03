@@ -16,18 +16,24 @@ class Data:
         self.CovidDf = None
         self.last_update = None
 
-        self.set_up()
-
     def should_update(self):
         curr_time = time.time()
 
-        if self.last_update is None or curr_time >= self.last_update + 3600:
+        if self.last_update is None or curr_time >= self.last_update + 7200:
             print("Please update data.")
             return True
 
         return False
 
-    def set_up(self):
+    def efficient_set_up(self):
+        if self.last_update is None or self.should_update():
+            print("First time set up")
+            self.set_up(overwrite=True)
+        else:
+            print("Reading from cache")
+            self.set_up(overwrite=False)
+
+    def set_up(self, overwrite=False):
         # The international COVID dataset, aggregated per country and state
         # Source: Kaggle
         print("Setting up data")
@@ -80,7 +86,7 @@ class Data:
             county_confirmed,
         ) = api_utils.get_johns_hopkins_county_level_data()
         self.us_county_df = processing_utils.post_process_county_df_jhu(
-            county_deaths, county_confirmed
+            county_deaths, county_confirmed, overwrite=overwrite
         )
 
         # Covid data per US county

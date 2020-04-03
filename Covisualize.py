@@ -62,6 +62,7 @@ def get_hours_from_epoch():
 @st.cache
 def load_data(curr_time):
     data = site_data_abstraction.Data()
+    data.efficient_set_up()
     dropdown_options = data_fetcher.get_dropdown_options(data)
 
     return (data, dropdown_options)
