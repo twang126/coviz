@@ -67,7 +67,7 @@ curr_time = get_hours_from_epoch()
 
 streamlit_ui.add_header_and_title(st)
 
-if st.checkbox("View Usage Guide"):
+if st.checkbox("Show instructions"):
     streamlit_ui.load_instructions(st)
 
 if (

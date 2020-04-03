@@ -2,6 +2,8 @@ import datetime
 import numpy as np
 import pandas as pd
 from functools import cmp_to_key
+from itertools import chain
+from collections import OrderedDict
 
 CATEGORY_GRAPHING_COL = "Data"
 
@@ -49,6 +51,55 @@ METRIC_PERCENT_CHANGE_COLS = [
 METRIC_COLS = sorted(MEASUREMENT_COLS + METRIC_DELTA_COLS + METRIC_PERCENT_CHANGE_COLS)
 
 ENTITY_COLS = [COUNTRY_COL, STATE_COL, COUNTY_COL]
+
+ENTITY_TO_PURE_METRICS = {
+    COUNTRY_COL: [DEATHS_COL, CONFIRMED_COL, RECOVERED_COL],
+    "International Provinces": [DEATHS_COL, CONFIRMED_COL, RECOVERED_COL],
+    "United States": [
+        DEATHS_COL,
+        CONFIRMED_COL,
+        NEGATIVE_TEST_COL,
+        TOTAL_TEST_COL,
+        HOSPITALIZED_COL,
+        CUM_ICU_COL,
+        CUM_VENTILATOR_COL,
+        CURRENT_HOSPITALIED_COL,
+        CURR_ICU_COL,
+        CURR_VENTILATOR_COL,
+    ],
+    "US States": [
+        DEATHS_COL,
+        CONFIRMED_COL,
+        NEGATIVE_TEST_COL,
+        TOTAL_TEST_COL,
+        HOSPITALIZED_COL,
+        CUM_ICU_COL,
+        CUM_VENTILATOR_COL,
+        CURRENT_HOSPITALIED_COL,
+        CURR_ICU_COL,
+        CURR_VENTILATOR_COL,
+    ],
+    "US Counties": [DEATHS_COL, CONFIRMED_COL],
+}
+
+ENTITY_TO_METRICS_UNORDERED = {
+    k: list(
+        chain.from_iterable(
+            (i, i + DELTA_COL_SUFFIX, i + DELTA_PERCENT_COL_SUFFIX) for i in v
+        )
+    )
+    for k, v in ENTITY_TO_PURE_METRICS.items()
+}
+
+ENTITY_TO_METRICS = OrderedDict()
+ENTITY_TO_METRICS[COUNTRY_COL] = ENTITY_TO_METRICS_UNORDERED[COUNTRY_COL]
+ENTITY_TO_METRICS["United States"] = ENTITY_TO_METRICS_UNORDERED["United States"]
+ENTITY_TO_METRICS["International Provinces"] = ENTITY_TO_METRICS_UNORDERED[
+    "International Provinces"
+]
+ENTITY_TO_METRICS["US States"] = ENTITY_TO_METRICS_UNORDERED["US States"]
+ENTITY_TO_METRICS["US Counties"] = ENTITY_TO_METRICS_UNORDERED["US Counties"]
+
 
 STATE_MAPPING = {
     "AK": "Alaska",

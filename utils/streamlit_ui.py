@@ -18,8 +18,9 @@ def add_header_and_title(st):
 
         The **COVID-19 Analysis Project** has two main goals:  
         &ensp;&ensp;1. Create a central repository and schema for all of the reliable data reported in the world  
-        &ensp;&ensp;2. Allow for queries and visualizations against this data  
+        &ensp;&ensp;2. Allow for queries and visualizations against this data    
 
+        **We recommend you start by reading the guide below.**
         """
     )
 
@@ -50,10 +51,18 @@ def load_instructions(st):
     > overlay on Metric=**Confirmed** at Threshold=1000    
 
 
-    Note that some combinations of Metrics and Entities have no reported data. In this case, you will see a blank graph.  
-    Finally, if anything is broken or inconsistent, please do not hesitate to reach out.
+    Note that some combinations of Metrics and Entities have no reported data. In this case, you will see a blank graph.    
+
+    Finally, if anything is broken or inconsistent, please do not hesitate to reach out.  
     """
     )
+
+    st.subheader("Entity to available Metrics:")
+
+    mapping = processing_utils.ENTITY_TO_METRICS
+    for entity, metrics in mapping.items():
+        st.markdown(entity)
+        st.write(sorted(metrics))
 
 
 def get_default_index(term, lst):
