@@ -75,19 +75,19 @@ class Data:
 
         print("Finished US and states DF")
 
-        # (
-        #     county_deaths,
-        #     county_confirmed,
-        # ) = api_utils.get_johns_hopkins_county_level_data()
-        # self.us_county_df = processing_utils.post_process_county_df_jhu(
-        #     county_deaths, county_confirmed
-        # )
+        (
+            county_deaths,
+            county_confirmed,
+        ) = api_utils.get_johns_hopkins_county_level_data()
+        self.us_county_df = processing_utils.post_process_county_df_jhu(
+            county_deaths, county_confirmed
+        )
 
         # Covid data per US county
         # Source: NY Times
-        self.us_county_df = processing_utils.post_process_county_df(
-            api_utils.get_historical_county_level_data()
-        )
+        # self.us_county_df = processing_utils.post_process_county_df(
+        #     api_utils.get_historical_county_level_data()
+        # )
 
         print("Finished county df")
 

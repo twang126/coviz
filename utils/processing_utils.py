@@ -508,6 +508,7 @@ def post_process_county_df(df):
 
 
 def post_process_county_df_jhu(deaths, confirmed):
+    print("Starting to postprocess JHU")
     death_id_cols = [
         "UID",
         "iso2",
@@ -526,11 +527,13 @@ def post_process_county_df_jhu(deaths, confirmed):
     melted_deaths = pd.melt(
         deaths, id_vars=death_id_cols, var_name=DATE_COL, value_name=DEATHS_COL
     )
-    melted_deaths["Admin2"] = melted_deaths["Admin2"].fillna("")
-    melted_deaths = melted_deaths[(melted_deaths["Admin2"] != "Unassigned")]
-    melted_deaths = melted_deaths[~melted_deaths["Admin2"].str.contains("Out of")]
-    melted_deaths = melted_deaths.rename(
-        columns={"Admin2": "County", "Province_State": "Province/State"}
+    melted_deaths["Admin2"].fillna("", inplace=True)
+    melted_deaths = melted_deaths[
+        (melted_deaths["Admin2"] != "Unassigned")
+        & ~(melted_deaths["Admin2"].str.contains("Out of"))
+    ]
+    melted_deaths.rename(
+        columns={"Admin2": "County", "Province_State": "Province/State"}, inplace=True
     )
 
     # Process confirmed df
@@ -554,21 +557,22 @@ def post_process_county_df_jhu(deaths, confirmed):
         var_name=DATE_COL,
         value_name=CONFIRMED_COL,
     )
-    confirmed_melted = confirmed_melted.rename(
-        columns={"Admin2": "County", "Province_State": "Province/State"}
+    confirmed_melted.rename(
+        columns={"Admin2": "County", "Province_State": "Province/State"}, inplace=True
     )
-    confirmed_melted["County"] = confirmed_melted["County"].fillna("")
-    confirmed_melted = confirmed_melted[(confirmed_melted["County"] != "Unassigned")]
+    confirmed_melted["County"].fillna("", inplace=True)
     confirmed_melted = confirmed_melted[
-        ~confirmed_melted["County"].str.contains("Out of")
+        (confirmed_melted["County"] != "Unassigned")
+        & ~confirmed_melted["County"].str.contains("Out of")
     ]
     county_confirmed = confirmed_melted[
         ["FIPS", "UID", "County", "Province/State", "Date", "Confirmed"]
     ]
     merged = county_confirmed.merge(melted_deaths, how="outer", on=["UID", DATE_COL])
 
-    merged = merged.rename(
-        columns={"Province/State_x": "Province/State", "County_x": "County"}
+    merged.rename(
+        columns={"Province/State_x": "Province/State", "County_x": "County"},
+        inplace=True,
     )
     merged["County"] = merged.apply(
         lambda row: row["Province/State"]
