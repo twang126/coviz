@@ -44,6 +44,7 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 state = session_state.get(
     prev_request=streamlit_ui.get_default_request(),
+    data=None,
     key=0,
     dropdown_options=None,
     metrics=streamlit_ui.default_metrics,
@@ -62,7 +63,6 @@ def get_hours_from_epoch():
 @st.cache
 def load_data(curr_time):
     data = site_data_abstraction.Data()
-    data.efficient_set_up()
     dropdown_options = data_fetcher.get_dropdown_options(data)
 
     return (data, dropdown_options)
@@ -79,8 +79,8 @@ if st.checkbox("Show instructions"):
 if st.checkbox("Show Entity to Metrics mapping"):
     streamlit_ui.load_entity_to_metrics_mapping(st)
 
-
-data, state.dropdown_options = load_data(curr_time)
+if state.data is None:
+    state.data, state.dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
 st.markdown("""### Graph ### """)
@@ -173,7 +173,7 @@ else:
 
 ## Add the default plot
 default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
-    data_obj=data, request=state.prev_request
+    data_obj=state.data, request=state.prev_request
 )
 default_chart = graphing.build_chart(source=default_source_df)
 graph_cell.altair_chart(default_chart)
@@ -208,7 +208,7 @@ if plot_button:
 
     if data_fetcher.is_valid_data_fetch_request(request):
         df, displayable_data = data_fetcher.process_request_dict(
-            data_obj=data, request=request
+            data_obj=state.data, request=request
         )
 
         if df is not None:
