@@ -5,10 +5,11 @@ import altair as alt
 from utils import processing_utils
 
 
-def build_chart(source):
+def build_chart(source,  linear = True):
     x_col_str_label = processing_utils.DATE_COL + ":T"
     y_col_str_label = processing_utils.MEASUREMENT_COL + ":Q"
     category_str_label = processing_utils.CATEGORY_GRAPHING_COL + ":N"
+
 
     # Create a selection that chooses the nearest point & selects based on x-value
     nearest = alt.selection(
@@ -19,11 +20,16 @@ def build_chart(source):
         empty="none",
     )
 
+    if linear:
+        scale=alt.Scale(type='linear')
+    else:
+        scale=alt.Scale(type='log')
+
     # The basic line
     line = (
         alt.Chart(source)
         .mark_line(interpolate="natural")
-        .encode(x=x_col_str_label, y=y_col_str_label, color=category_str_label)
+        .encode(alt.X(x_col_str_label), alt.Y(y_col_str_label, scale=scale), color=alt.Color(category_str_label, legend=alt.Legend(offset=50)))
     )
 
     # Transparent selectors across the chart. This is what tells us
@@ -37,8 +43,9 @@ def build_chart(source):
 
     # Draw points on the line, and highlight based on selection
     points = line.mark_point().encode(
-        opacity=alt.condition(nearest, alt.value(1), alt.value(0))
+        opacity=alt.condition(nearest, alt.value(1), alt.value(0)), 
     )
+
 
     # Draw text labels near the points, and highlight based on selection
     text = line.mark_text(align="left", dx=5, dy=-5).encode(
@@ -56,6 +63,6 @@ def build_chart(source):
     # Put the five layers into a chart and bind the data
     chart = alt.layer(line, selectors, points, rules, text).properties(
         width=750, height=600
-    )
+    ).configure_axisX(gridWidth=0.4).configure_axisY(gridWidth=0.4)
 
     return chart
