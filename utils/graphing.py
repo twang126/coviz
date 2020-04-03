@@ -41,7 +41,7 @@ def build_chart(source):
     )
 
     # Draw text labels near the points, and highlight based on selection
-    text = line.mark_text(align="left", dx=5, dy=5).encode(
+    text = line.mark_text(align="left", dx=5, dy=-5).encode(
         text=alt.condition(nearest, y_col_str_label, alt.value(" "))
     )
 

@@ -81,7 +81,6 @@ if (
 st.markdown("""### Graph ### """)
 graph_cell = st.empty()
 
-st.markdown("""### Data ### """)
 data_cell = st.empty()
 
 ### Set up the side bar ###
@@ -199,6 +198,8 @@ if plot_button:
                 displayable_data
             )
 
+            st.markdown("""### Data ### """)
+
             if len(all_plots) > 0:
                 st.header("Descriptive statistics for rate of change metrics")
 
@@ -210,7 +211,6 @@ if plot_button:
                         st.write(stats_dict)
 
             if len(all_dataframes) > 0:
-                st.header("Raw data tables")
 
                 for entity, metric_to_dataframe in all_dataframes.items():
                     st.subheader(entity)
