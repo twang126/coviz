@@ -518,7 +518,7 @@ def post_process_county_df_jhu(deaths, confirmed, overwrite=False):
         old_date = old.split("/")
         yyyy = "20" + old_date[2]
         mm = "0" + old_date[0] if len(old_date[0]) == 1 else old_date[0]
-        dd = "0" + old_date[1] if len(old_date[0]) == 1 else old_date[1]
+        dd = "0" + old_date[1] if len(old_date[1]) == 1 else old_date[1]
         return yyyy + "-" + mm + "-" + dd
 
     print("Starting to postprocess JHU")
