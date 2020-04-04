@@ -54,6 +54,7 @@ state = session_state.get(
     county=streamlit_ui.default_county,
     overlay_metric=streamlit_ui.default_overlay_metric,
     overlay_threshold=streamlit_ui.default_overlay_threshold,
+    overlay=False,
 )
 
 
@@ -125,6 +126,7 @@ if reset_button:
     state.overlay_threshold = streamlit_ui.default_overlay_threshold
 
     state.prev_request = streamlit_ui.get_default_request()
+    state.overlay = False
 
 ### Actually implement the selector menus
 metrics = metrics_selector.multiselect(
@@ -155,28 +157,44 @@ counties = counties_selector.multiselect(
     key=state.key,
 )
 
-overlay_checkbox = overlay_box.checkbox("Add overlay", key=state.key)
-
-overlay_metric = overlay_metric_selector.selectbox(
-    label="Overlay Metric:",
-    options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
-    key=state.key,
-    index=state.overlay_metric,
-)
-
-overlay_threshold = overlay_threshold_box.number_input(
-    label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
-)
-
 state.country = countries
 state.county = counties
 state.states = states
 state.metrics = metrics
 
-state.overlay_metric = streamlit_ui.get_default_index(
-    overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
+overlay_checkbox = overlay_box.checkbox(
+    "Add overlay", key=state.key, value=state.overlay
 )
-state.overlay_threshold = overlay_threshold
+
+if overlay_checkbox:
+    overlay_metric = overlay_metric_selector.selectbox(
+        label="Overlay Metric:",
+        options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
+        key=state.key,
+        index=state.overlay_metric,
+    )
+
+    overlay_threshold = overlay_threshold_box.number_input(
+        label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
+    )
+else:
+    overlay_metric = None
+    overlay_threshold = None
+
+
+state.overlay_metric = (
+    streamlit_ui.get_default_index(
+        overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
+    )
+    if overlay_metric is not None
+    else streamlit_ui.default_overlay_metric
+)
+state.overlay_threshold = (
+    overlay_threshold
+    if overlay_threshold is not None
+    else streamlit_ui.default_overlay_threshold
+)
+state.overlay = overlay_checkbox
 
 ## Add the default plot
 default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
@@ -197,19 +215,21 @@ if plot_button:
         overlay_threshold,
     )
 
-    state.country = countries
-    state.county = counties
-    state.states = states
-    state.metrics = metrics
+    # state.country = countries
+    # state.county = counties
+    # state.states = states
+    # state.metrics = metrics
 
-    if overlay_checkbox:
-        state.overlay_metric = streamlit_ui.get_default_index(
-            overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
-        )
-        state.overlay_threshold = overlay_threshold
-    else:
-        state.overlay_metric = streamlit_ui.default_overlay_metric
-        state.overlay_threshold = streamlit_ui.default_overlay_threshold
+    # if overlay_checkbox:
+    #     state.overlay_metric = streamlit_ui.get_default_index(
+    #         overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
+    #     )
+    #     state.overlay_threshold = overlay_threshold
+    #     state.overlay = True
+    # else:
+    #     state.overlay_metric = streamlit_ui.default_overlay_metric
+    #     state.overlay_threshold = streamlit_ui.default_overlay_threshold
+    #     state.overlay = False
 
     successfully_updated_chart = False
 
