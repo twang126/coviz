@@ -84,7 +84,7 @@ if state.data is None:
     state.data, state.dropdown_options = load_data(curr_time)
 
 ### Build a placeholder cell ###
-st.markdown("""### Graph ### """)
+st.markdown("""## Graph ## """)
 graph_cell = st.empty()
 
 data_cell = st.empty()
@@ -229,10 +229,15 @@ if plot_button:
                 # Pretend like we are processing
                 time.sleep(float(random.randint(25, 120)) / 100)
 
-            st.markdown("""### Data ### """)
+            st.markdown("""## Data ## """)
+
+            if len(all_dataframes) > 0:
+                for entity, df in all_dataframes.items():
+                    st.subheader(entity)
+                    st.write(df)
 
             if len(all_plots) > 0:
-                st.header("Descriptive statistics for rate of change metrics")
+                st.markdown("### Descriptive statistics for rate of change metrics ###")
 
                 for entity, metric_to_plot in all_plots.items():
                     st.subheader(entity)
@@ -240,11 +245,6 @@ if plot_button:
                     for metric, stats_dict in metric_to_plot.items():
                         st.markdown(metric)
                         st.write(stats_dict)
-
-            if len(all_dataframes) > 0:
-                for entity, df in all_dataframes.items():
-                    st.subheader(entity)
-                    st.write(df)
 
     if not successfully_updated_chart:
         graph_alerts_cell.warning("Failed to update: no data returned for that query.")

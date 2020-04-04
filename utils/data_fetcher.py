@@ -189,6 +189,6 @@ def fetch_streamlit_raw_data_display(displayable_data):
                 left, right, on=processing_utils.DATE_COL, how="outer"
             ),
             entity_to_df[entity],
-        )
+        ).sort_values(by=processing_utils.DATE_COL, ascending=False)
 
     return entity_to_df, entity_to_metric_to_boxplots
