@@ -168,6 +168,16 @@ if overlay_checkbox:
     overlay_threshold = overlay_threshold_box.number_input(
         label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
     )
+
+    state.country = countries
+    state.county = counties
+    state.states = states
+    state.metrics = metrics
+
+    state.overlay_metric = streamlit_ui.get_default_index(
+        overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
+    )
+    state.overlay_threshold = overlay_threshold
 else:
     overlay_metric = None
     overlay_threshold = None
