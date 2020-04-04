@@ -155,32 +155,28 @@ counties = counties_selector.multiselect(
     key=state.key,
 )
 
-overlay_checkbox = overlay_box.checkbox("Add overlay")
+overlay_checkbox = overlay_box.checkbox("Add overlay", key=state.key)
 
-if overlay_checkbox:
-    overlay_metric = overlay_metric_selector.selectbox(
-        label="Overlay Metric:",
-        options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
-        key=state.key,
-        index=state.overlay_metric,
-    )
+overlay_metric = overlay_metric_selector.selectbox(
+    label="Overlay Metric:",
+    options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
+    key=state.key,
+    index=state.overlay_metric,
+)
 
-    overlay_threshold = overlay_threshold_box.number_input(
-        label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
-    )
+overlay_threshold = overlay_threshold_box.number_input(
+    label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
+)
 
-    state.country = countries
-    state.county = counties
-    state.states = states
-    state.metrics = metrics
+state.country = countries
+state.county = counties
+state.states = states
+state.metrics = metrics
 
-    state.overlay_metric = streamlit_ui.get_default_index(
-        overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
-    )
-    state.overlay_threshold = overlay_threshold
-else:
-    overlay_metric = None
-    overlay_threshold = None
+state.overlay_metric = streamlit_ui.get_default_index(
+    overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
+)
+state.overlay_threshold = overlay_threshold
 
 ## Add the default plot
 default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
@@ -206,7 +202,7 @@ if plot_button:
     state.states = states
     state.metrics = metrics
 
-    if overlay_metric is not None and overlay_threshold is not None:
+    if overlay_checkbox:
         state.overlay_metric = streamlit_ui.get_default_index(
             overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
         )
@@ -237,7 +233,7 @@ if plot_button:
                 ) = data_fetcher.fetch_streamlit_raw_data_display(displayable_data)
 
                 # Pretend like we are processing
-                time.sleep(float(random.randint(25, 120)) / 100)
+                time.sleep(float(random.randint(25, 175)) / 100)
 
             st.markdown("""## Data ## """)
 
