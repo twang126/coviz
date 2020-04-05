@@ -10,7 +10,6 @@ def build_chart(source):
     y_col_str_label = processing_utils.MEASUREMENT_COL + ":Q"
     category_str_label = processing_utils.CATEGORY_GRAPHING_COL + ":N"
 
-
     # Create a selection that chooses the nearest point & selects based on x-value
     nearest = alt.selection(
         type="single",
@@ -23,8 +22,12 @@ def build_chart(source):
     # The basic line
     line = (
         alt.Chart(source)
-        .mark_line(interpolate="natural")
-        .encode(alt.X(x_col_str_label), alt.Y(y_col_str_label,), color=alt.Color(category_str_label, legend=alt.Legend(offset=50)))
+        .mark_line(interpolate="linear")
+        .encode(
+            alt.X(x_col_str_label),
+            alt.Y(y_col_str_label,),
+            color=alt.Color(category_str_label, legend=alt.Legend(offset=50)),
+        )
     )
 
     # Transparent selectors across the chart. This is what tells us
@@ -38,7 +41,7 @@ def build_chart(source):
 
     # Draw points on the line, and highlight based on selection
     points = line.mark_point().encode(
-        opacity=alt.condition(nearest, alt.value(1), alt.value(0)), 
+        opacity=alt.condition(nearest, alt.value(1), alt.value(0)),
     )
 
     # Draw text labels near the points, and highlight based on selection
@@ -55,8 +58,11 @@ def build_chart(source):
     )
 
     # Put the five layers into a chart and bind the data
-    chart = alt.layer(line, selectors, points, rules, text).properties(
-        width=750, height=600
-    ).configure_axisX(gridWidth=0.4).configure_axisY(gridWidth=0.4)
+    chart = (
+        alt.layer(line, selectors, points, rules, text)
+        .properties(width=750, height=600)
+        .configure_axisX(gridWidth=0.4)
+        .configure_axisY(gridWidth=0.4)
+    )
 
     return chart
