@@ -125,7 +125,7 @@ if reset_button:
     state.overlay_metric = streamlit_ui.default_overlay_metric
     state.overlay_threshold = streamlit_ui.default_overlay_threshold
 
-    state.prev_request = streamlit_ui.get_default_request()
+    state.chart = None
     state.overlay = False
 
 ### Actually implement the selector menus
