@@ -157,13 +157,11 @@ counties = counties_selector.multiselect(
     key=state.key,
 )
 
-
 overlay_checkbox = overlay_box.checkbox(
     "Add overlay", key=state.key, value=state.overlay
 )
 
 if overlay_checkbox:
-
     overlay_metric = overlay_metric_selector.selectbox(
         label="Overlay Metric:",
         options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
@@ -175,41 +173,28 @@ if overlay_checkbox:
         label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
     )
 
-    state.country = countries
-    state.county = counties
-    state.states = states
-    state.metrics = metrics
-
-    state.overlay_metric = (
-        streamlit_ui.get_default_index(
-            overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
-        )
-        if overlay_metric is not None
-        else streamlit_ui.default_overlay_metric
-    )
-    state.overlay_threshold = (
-        overlay_threshold
-        if overlay_threshold is not None
-        else streamlit_ui.default_overlay_threshold
-    )
-    state.overlay = overlay_checkbox
+    if not state.overlay:
+        state.country = countries
+        state.county = counties
+        state.states = states
+        state.metrics = metrics
 else:
     overlay_metric = None
     overlay_threshold = None
 
-    state.overlay_metric = (
-        streamlit_ui.get_default_index(
-            overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
-        )
-        if overlay_metric is not None
-        else streamlit_ui.default_overlay_metric
+state.overlay_metric = (
+    streamlit_ui.get_default_index(
+        overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
     )
-    state.overlay_threshold = (
-        overlay_threshold
-        if overlay_threshold is not None
-        else streamlit_ui.default_overlay_threshold
-    )
-    state.overlay = overlay_checkbox
+    if overlay_metric is not None
+    else streamlit_ui.default_overlay_metric
+)
+state.overlay_threshold = (
+    overlay_threshold
+    if overlay_threshold is not None
+    else streamlit_ui.default_overlay_threshold
+)
+state.overlay = overlay_checkbox
 
 ## Add the default plot
 if state.chart is None:
