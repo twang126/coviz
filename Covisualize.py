@@ -157,16 +157,16 @@ counties = counties_selector.multiselect(
     key=state.key,
 )
 
-state.country = countries
-state.county = counties
-state.states = states
-state.metrics = metrics
 
 overlay_checkbox = overlay_box.checkbox(
     "Add overlay", key=state.key, value=state.overlay
 )
 
 if overlay_checkbox:
+    state.country = countries
+    state.county = counties
+    state.states = states
+    state.metrics = metrics
     overlay_metric = overlay_metric_selector.selectbox(
         label="Overlay Metric:",
         options=state.dropdown_options[processing_utils.MEASUREMENT_COL],
