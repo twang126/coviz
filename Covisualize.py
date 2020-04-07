@@ -44,7 +44,6 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 state = session_state.get(
-    prev_request=streamlit_ui.get_default_request(),
     data=None,
     key=0,
     dropdown_options=None,
@@ -55,6 +54,7 @@ state = session_state.get(
     overlay_metric=streamlit_ui.default_overlay_metric,
     overlay_threshold=streamlit_ui.default_overlay_threshold,
     overlay=False,
+    chart=None,
 )
 
 
@@ -197,11 +197,14 @@ state.overlay_threshold = (
 state.overlay = overlay_checkbox
 
 ## Add the default plot
-default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
-    data_obj=state.data, request=state.prev_request
-)
-default_chart = graphing.build_chart(source=default_source_df)
-graph_cell.altair_chart(default_chart)
+if state.chart is None:
+    default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
+        data_obj=state.data, request=streamlit_ui.get_default_request()
+    )
+    default_chart = graphing.build_chart(source=default_source_df)
+    state.chart = default_chart
+
+graph_cell.altair_chart(state.chart)
 
 ### Upon the 'plot' button being pressed, plot the graph if the parameters are valid ###
 if plot_button:
@@ -239,21 +242,22 @@ if plot_button:
         )
 
         if df is not None:
-            chart = graphing.build_chart(source=df)
-
-            graph_cell.altair_chart(chart)
-            successfully_updated_chart = True
-
             with st.spinner("Fetching results..."):
+                chart = graphing.build_chart(source=df)
+
+                graph_cell.altair_chart(chart)
+                successfully_updated_chart = True
+
                 # Set the default plot
-                state.prev_request = request
                 (
                     all_dataframes,
                     all_plots,
                 ) = data_fetcher.fetch_streamlit_raw_data_display(displayable_data)
 
+                state.chart = chart
+
                 # Pretend like we are processing
-                time.sleep(float(random.randint(25, 175)) / 100)
+                time.sleep(float(random.randint(50, 115)) / 100)
 
             st.markdown("""## Data ## """)
 
