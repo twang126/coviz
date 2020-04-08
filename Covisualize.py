@@ -47,10 +47,10 @@ state = session_state.get(
     data=None,
     key=0,
     dropdown_options=None,
-    metrics=streamlit_ui.default_metrics,
-    country=streamlit_ui.default_country,
-    states=streamlit_ui.default_states,
-    county=streamlit_ui.default_county,
+    metrics=None,
+    country=None,
+    states=None,
+    county=None,
     overlay_metric=streamlit_ui.default_overlay_metric,
     overlay_threshold=streamlit_ui.default_overlay_threshold,
     overlay=False,
@@ -128,32 +128,45 @@ if reset_button:
     state.chart = None
     state.overlay = False
 
+
+if state.metrics is None:
+    state.metrics = streamlit_ui.default_metrics
+
+if state.country is None:
+    state.country = streamlit_ui.default_country
+
+if state.states is None:
+    state.states = streamlit_ui.default_states
+
+if state.county is None:
+    state.county = streamlit_ui.default_county
+
 ### Actually implement the selector menus
 metrics = metrics_selector.multiselect(
     "Type(s) of data to plot",
     state.dropdown_options[processing_utils.MEASUREMENT_COL],
-    # default=state.metrics,
+    default=state.metrics,
     key=state.key,
 )
 
 countries = countries_selector.multiselect(
     processing_utils.COUNTRY_COL + "s:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
-    # default=state.country,
+    default=state.country,
     key=state.key,
 )
 
 states = states_selector.multiselect(
     processing_utils.STATE_COL + "s:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
-    # default=state.states,
+    default=state.states,
     key=state.key,
 )
 
 counties = counties_selector.multiselect(
     "US Counties:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
-    # default=state.county,
+    default=state.county,
     key=state.key,
 )
 
@@ -219,10 +232,10 @@ if plot_button:
         overlay_threshold,
     )
 
-    # state.country = countries
-    # state.county = counties
-    # state.states = states
-    # state.metrics = metrics
+    state.country = countries
+    state.county = counties
+    state.states = states
+    state.metrics = metrics
 
     # if overlay_checkbox:
     #     state.overlay_metric = streamlit_ui.get_default_index(
