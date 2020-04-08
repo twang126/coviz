@@ -132,34 +132,35 @@ if reset_button:
 metrics = metrics_selector.multiselect(
     "Type(s) of data to plot",
     state.dropdown_options[processing_utils.MEASUREMENT_COL],
-    default=state.metrics,
+    # default=state.metrics,
     key=state.key,
 )
 
 countries = countries_selector.multiselect(
     processing_utils.COUNTRY_COL + "s:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTRY_COL],
-    default=state.country,
+    # default=state.country,
     key=state.key,
 )
 
 states = states_selector.multiselect(
     processing_utils.STATE_COL + "s:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.STATE_COL],
-    default=state.states,
+    # default=state.states,
     key=state.key,
 )
 
 counties = counties_selector.multiselect(
     "US Counties:",
     state.dropdown_options[processing_utils.ENTITY_COL][processing_utils.COUNTY_COL],
-    default=state.county,
+    # default=state.county,
     key=state.key,
 )
 
 overlay_checkbox = overlay_box.checkbox(
     "Add overlay", key=state.key, value=state.overlay
 )
+
 
 if overlay_checkbox:
     overlay_metric = overlay_metric_selector.selectbox(
