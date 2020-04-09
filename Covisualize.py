@@ -57,6 +57,7 @@ state = session_state.get(
     overlay_threshold=streamlit_ui.default_overlay_threshold,
     overlay=False,
     chart=None,
+    log=False,
 )
 
 
@@ -105,6 +106,8 @@ countries_selector = st.sidebar.empty()
 states_selector = st.sidebar.empty()
 
 counties_selector = st.sidebar.empty()
+
+log_box = st.sidebar.empty()
 
 st.sidebar.markdown("""### Overlay (optional):""")
 
@@ -172,9 +175,12 @@ counties = counties_selector.multiselect(
     key=state.key,
 )
 
+log_checkbox = log_box.checkbox("Log scale", key=state.key, value=state.log)
+
 overlay_checkbox = overlay_box.checkbox(
     "Add overlay", key=state.key, value=state.overlay
 )
+
 
 prev_metrics = state.metrics
 state.metrics = metrics
@@ -222,6 +228,7 @@ else:
 prev_overlay_metric = state.overlay_metric
 prev_overlay_threshold = state.overlay_threshold
 prev_overlay = state.overlay
+prev_log = state.log
 
 state.overlay_metric = (
     streamlit_ui.get_default_index(
@@ -236,6 +243,7 @@ state.overlay_threshold = (
     else streamlit_ui.default_overlay_threshold
 )
 state.overlay = overlay_checkbox
+state.log = log_checkbox
 
 
 if prev_overlay_metric != state.overlay_metric:
@@ -249,12 +257,15 @@ if prev_overlay_threshold != state.overlay_threshold:
 if prev_overlay != state.overlay:
     raise RerunException(RerunData(widget_state=None))
 
+if prev_log != state.log:
+    raise RerunException(RerunData(widget_state=None))
+
 ## Add the default plot
 if state.chart is None:
     default_source_df, default_displayable_dict = data_fetcher.process_request_dict(
         data_obj=state.data, request=streamlit_ui.get_default_request()
     )
-    default_chart = graphing.build_chart(source=default_source_df)
+    default_chart = graphing.build_chart(source=default_source_df, is_log=state.log)
     state.chart = default_chart
 
 graph_cell.altair_chart(state.chart)
@@ -280,7 +291,7 @@ if plot_button:
 
         if df is not None:
             with st.spinner("Fetching results..."):
-                chart = graphing.build_chart(source=df)
+                chart = graphing.build_chart(source=df, is_log=log_checkbox)
 
                 graph_cell.altair_chart(chart)
                 successfully_updated_chart = True

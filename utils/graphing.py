@@ -5,10 +5,22 @@ import altair as alt
 from utils import processing_utils
 
 
-def build_chart(source):
+def build_chart(source, is_log=True):
     x_col_str_label = processing_utils.DATE_COL + ":T"
-    y_col_str_label = processing_utils.MEASUREMENT_COL + ":Q"
+
+    if is_log:
+        value_col = processing_utils.MEASUREMENT_COL + " (log)"
+        source = source.rename(
+            columns={processing_utils.MEASUREMENT_COL: value_col}, inplace=False
+        )
+    else:
+        value_col = processing_utils.MEASUREMENT_COL
+
+    y_col_str_label = value_col + ":Q"
     category_str_label = processing_utils.CATEGORY_GRAPHING_COL + ":N"
+
+    if is_log:
+        source[value_col] = np.round(np.log(source[value_col]), decimals=2)
 
     # Create a selection that chooses the nearest point & selects based on x-value
     nearest = alt.selection(
@@ -22,7 +34,7 @@ def build_chart(source):
     # The basic line
     line = (
         alt.Chart(source)
-        .mark_line(interpolate="linear")
+        .mark_line(interpolate="monotone")
         .encode(
             alt.X(x_col_str_label),
             alt.Y(y_col_str_label,),
