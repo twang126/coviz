@@ -10,6 +10,8 @@ from utils import processing_utils
 from utils import graphing
 from utils import streamlit_ui
 from utils import session_state
+from streamlit.ScriptRunner import RerunException
+from streamlit.ScriptRequestQueue import RerunData
 
 import time
 import random
@@ -174,6 +176,33 @@ overlay_checkbox = overlay_box.checkbox(
     "Add overlay", key=state.key, value=state.overlay
 )
 
+prev_metrics = state.metrics
+state.metrics = metrics
+
+prev_countries = state.country
+state.country = countries
+
+prev_counties = state.county
+state.county = counties
+
+prev_states = state.states
+state.states = states
+
+
+if metrics != prev_metrics:
+    raise RerunException(RerunData(widget_state=None))
+
+
+if countries != prev_countries:
+    raise RerunException(RerunData(widget_state=None))
+
+
+if counties != prev_counties:
+    raise RerunException(RerunData(widget_state=None))
+
+
+if states != prev_states:
+    raise RerunException(RerunData(widget_state=None))
 
 if overlay_checkbox:
     overlay_metric = overlay_metric_selector.selectbox(
@@ -186,15 +215,13 @@ if overlay_checkbox:
     overlay_threshold = overlay_threshold_box.number_input(
         label="Overlay Threshold:", key=state.key, value=state.overlay_threshold
     )
-
-    if not state.overlay:
-        state.country = countries
-        state.county = counties
-        state.states = states
-        state.metrics = metrics
 else:
     overlay_metric = None
     overlay_threshold = None
+
+prev_overlay_metric = state.overlay_metric
+prev_overlay_threshold = state.overlay_threshold
+prev_overlay = state.overlay
 
 state.overlay_metric = (
     streamlit_ui.get_default_index(
@@ -209,6 +236,18 @@ state.overlay_threshold = (
     else streamlit_ui.default_overlay_threshold
 )
 state.overlay = overlay_checkbox
+
+
+if prev_overlay_metric != state.overlay_metric:
+    raise RerunException(RerunData(widget_state=None))
+
+
+if prev_overlay_threshold != state.overlay_threshold:
+    raise RerunException(RerunData(widget_state=None))
+
+
+if prev_overlay != state.overlay:
+    raise RerunException(RerunData(widget_state=None))
 
 ## Add the default plot
 if state.chart is None:
@@ -231,22 +270,6 @@ if plot_button:
         overlay_metric,
         overlay_threshold,
     )
-
-    state.country = countries
-    state.county = counties
-    state.states = states
-    state.metrics = metrics
-
-    # if overlay_checkbox:
-    #     state.overlay_metric = streamlit_ui.get_default_index(
-    #         overlay_metric, state.dropdown_options[processing_utils.MEASUREMENT_COL]
-    #     )
-    #     state.overlay_threshold = overlay_threshold
-    #     state.overlay = True
-    # else:
-    #     state.overlay_metric = streamlit_ui.default_overlay_metric
-    #     state.overlay_threshold = streamlit_ui.default_overlay_threshold
-    #     state.overlay = False
 
     successfully_updated_chart = False
 
