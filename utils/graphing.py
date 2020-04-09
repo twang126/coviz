@@ -21,6 +21,7 @@ def build_chart(source, is_log=True):
 
     if is_log:
         source[value_col] = np.round(np.log(source[value_col]), decimals=2)
+        source[value_col] = source[value_col].replace(-np.inf, 0)
 
     # Create a selection that chooses the nearest point & selects based on x-value
     nearest = alt.selection(
