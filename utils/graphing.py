@@ -10,13 +10,13 @@ def build_chart(source, is_log=True):
 
     if is_log:
         value_col = processing_utils.MEASUREMENT_COL + " (log)"
-        source = source.rename(
-            columns={processing_utils.MEASUREMENT_COL: value_col}, inplace=False
-        )
+        source[value_col] = source[processing_utils.MEASUREMENT_COL]
     else:
         value_col = processing_utils.MEASUREMENT_COL
 
     y_col_str_label = value_col + ":Q"
+    original_y_col = processing_utils.MEASUREMENT_COL + ":Q"
+
     category_str_label = processing_utils.CATEGORY_GRAPHING_COL + ":N"
 
     if is_log:
@@ -59,13 +59,13 @@ def build_chart(source, is_log=True):
 
     # Draw text labels near the points, and highlight based on selection
     text = line.mark_text(align="left", dx=5, dy=-5).encode(
-        text=alt.condition(nearest, y_col_str_label, alt.value(" "))
+        text=alt.condition(nearest, original_y_col, alt.value(" "))
     )
 
     # Draw a rule at the location of the selection
     rules = (
         alt.Chart(source)
-        .mark_rule(color="limegreen")
+        .mark_rule(color="#c6bcb6")
         .encode(x=x_col_str_label)
         .transform_filter(nearest)
     )
