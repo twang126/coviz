@@ -1,4 +1,4 @@
-# View it here: [timothyxwang.com/covid](timothyxwang.com/covid)
+# View it here: [timothyxwang.com/covid](https://www.timothyxwang.com/covid)
 
 # Set Up
 ##### Note: this project assumes a default python version of 3 or later. It has not been tested on any 2.x distribution.
