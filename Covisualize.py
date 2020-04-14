@@ -305,7 +305,7 @@ if plot_button:
                 state.chart = chart
 
                 # Pretend like we are processing
-                time.sleep(float(random.randint(50, 115)) / 100)
+                time.sleep(float(random.randint(25, 75)) / 100)
 
             st.markdown("""## Data ## """)
 
