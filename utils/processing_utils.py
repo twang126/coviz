@@ -418,7 +418,7 @@ def stable_post_process_state_testing_df(df):
 
 def post_process_state_testing_df(df, poll=False):
     col_mapping = {
-        "date": DATE_COL,
+        "dateChecked": DATE_COL,
         "state": STATE_COL,
         "negative": NEGATIVE_TEST_COL,
         "positive": CONFIRMED_COL,
@@ -438,10 +438,8 @@ def post_process_state_testing_df(df, poll=False):
     }
 
     df = df.rename(columns=col_mapping)
-    df[DATE_COL] = df[DATE_COL].astype(str)
-    df[DATE_COL] = df[DATE_COL].apply(
-        lambda d: datetime.datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")
-    )
+    df[DATE_COL] = pd.to_datetime(df[DATE_COL])
+    df[DATE_COL] = df[DATE_COL].apply(lambda d: d.strftime("%Y-%m-%d"))
 
     df[STATE_COL] = df[STATE_COL].apply(
         lambda abbrev: STATE_MAPPING[abbrev] if abbrev in STATE_MAPPING else abbrev
