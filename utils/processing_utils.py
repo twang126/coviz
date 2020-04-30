@@ -375,32 +375,50 @@ def post_process_us_testing_df(df, poll=False):
 
 
 def stable_post_process_state_testing_df(df):
+    print("Trying stable post processing")
+    print(type(df))
     col_mapping = {
         "date": DATE_COL,
         "state": STATE_COL,
         "negative": NEGATIVE_TEST_COL,
         "positive": CONFIRMED_COL,
         "death": DEATHS_COL,
-        "hospitalized": HOSPITALIZED_COL,
+        "hospitalizedCumulative": HOSPITALIZED_COL,
         "totalTestResults": TOTAL_TEST_COL,
         "positiveIncrease": CONFIRMED_COL + DELTA_COL_SUFFIX,
         "negativeIncrease": NEGATIVE_TEST_COL + DELTA_COL_SUFFIX,
         "totalTestResultsIncrease": TOTAL_TEST_COL + DELTA_COL_SUFFIX,
         "hospitalizedIncrease": HOSPITALIZED_COL + DELTA_COL_SUFFIX,
         "deathIncrease": DEATHS_COL + DELTA_COL_SUFFIX,
+        "inIcuCurrently": CURR_ICU_COL,
+        "inIcuCumulative": CUM_ICU_COL,
+        "onVentilatorCurrently": CURR_VENTILATOR_COL,
+        "onVentilatorCumulative": CUM_VENTILATOR_COL,
+        "hospitalizedCurrently": CURRENT_HOSPITALIED_COL,
     }
 
     df = df.rename(columns=col_mapping)
-    df[DATE_COL] = df[DATE_COL].astype(str)
-    df[DATE_COL] = df[DATE_COL].apply(
-        lambda d: datetime.datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")
-    )
+    df[DATE_COL] = pd.to_datetime(df[DATE_COL])
+    df[DATE_COL] = df[DATE_COL].apply(lambda d: d.strftime("%Y-%m-%d"))
 
     df[STATE_COL] = df[STATE_COL].apply(
         lambda abbrev: STATE_MAPPING[abbrev] if abbrev in STATE_MAPPING else abbrev
     )
 
     df[STATE_COL] = df.apply(lambda row: row[STATE_COL] + " (United States)", axis=1)
+
+    df = add_rolling_diff(
+        df,
+        sort_cols=[DATE_COL, STATE_COL],
+        diff_group_cols=[STATE_COL],
+        agg_cols=[
+            CURR_ICU_COL,
+            CURR_VENTILATOR_COL,
+            CURRENT_HOSPITALIED_COL,
+            CUM_ICU_COL,
+            CUM_VENTILATOR_COL,
+        ],
+    )
 
     return add_percent_change(
         df,
@@ -412,6 +430,11 @@ def stable_post_process_state_testing_df(df):
             DEATHS_COL,
             TOTAL_TEST_COL,
             HOSPITALIZED_COL,
+            CURR_ICU_COL,
+            CURR_VENTILATOR_COL,
+            CUM_ICU_COL,
+            CUM_VENTILATOR_COL,
+            CURRENT_HOSPITALIED_COL,
         ],
     )
 

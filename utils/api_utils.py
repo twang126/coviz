@@ -39,11 +39,11 @@ def get_historical_us_testing_data():
 
 
 def get_historical_states_testing_data():
-    print("Getting states data")
-    suffix = "states/daily.csv"
-    r = requests.get(US_TESTING_DATA_ROOT_URL + suffix)
-    csv_string = r.content
-    return pd.read_csv(BytesIO(csv_string))
+    # print("Getting states data")
+    # suffix = "states/daily.csv"
+    # r = requests.get(US_TESTING_DATA_ROOT_URL + suffix)
+    # csv_string = r.content
+    return pd.read_json("https://covidtracking.com/api/v1/states/daily.json")
 
 
 def get_historical_county_level_data():
