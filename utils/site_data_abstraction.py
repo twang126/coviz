@@ -42,8 +42,10 @@ class Data:
             self.raw_global_df.copy()
         )
 
-        self.international_states_df = processing_utils.post_process_international_states_df(
-            self.raw_global_df.copy(), self.international_df.copy()
+        self.international_states_df = (
+            processing_utils.post_process_international_states_df(
+                self.raw_global_df.copy(), self.international_df.copy()
+            )
         )
 
         print("Finished international df")
@@ -69,8 +71,10 @@ class Data:
         except Exception as e:
             print("State-wide Experimental failed")
             print(e)
-            self.us_states_testing_df = processing_utils.stable_post_process_state_testing_df(
-                api_utils.get_historical_states_testing_data()
+            self.us_states_testing_df = (
+                processing_utils.stable_post_process_state_testing_df(
+                    api_utils.get_historical_states_testing_data()
+                )
             )
 
         print("Finished US and states DF")
