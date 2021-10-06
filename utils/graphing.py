@@ -38,7 +38,9 @@ def build_chart(source, is_log=True):
         .mark_line(interpolate="monotone")
         .encode(
             alt.X(x_col_str_label),
-            alt.Y(y_col_str_label,),
+            alt.Y(
+                y_col_str_label,
+            ),
             color=alt.Color(category_str_label, legend=alt.Legend(offset=50)),
         )
     )
@@ -48,7 +50,10 @@ def build_chart(source, is_log=True):
     selectors = (
         alt.Chart(source)
         .mark_point()
-        .encode(x=x_col_str_label, opacity=alt.value(0),)
+        .encode(
+            x=x_col_str_label,
+            opacity=alt.value(0),
+        )
         .add_selection(nearest)
     )
 

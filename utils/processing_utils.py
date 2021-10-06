@@ -313,7 +313,11 @@ def stable_post_process_us_testing_df(df, poll=False):
         df,
         sort_cols=[DATE_COL],
         diff_group_cols=[COUNTRY_COL],
-        agg_cols=[NEGATIVE_TEST_COL, TOTAL_TEST_COL, HOSPITALIZED_COL,],
+        agg_cols=[
+            NEGATIVE_TEST_COL,
+            TOTAL_TEST_COL,
+            HOSPITALIZED_COL,
+        ],
     )
 
     return df
