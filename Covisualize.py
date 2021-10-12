@@ -10,8 +10,9 @@ from utils import processing_utils
 from utils import graphing
 from utils import streamlit_ui
 from utils import session_state
-from streamlit.ScriptRunner import RerunException
-from streamlit.ScriptRequestQueue import RerunData
+
+from streamlit.script_runner import RerunException
+from streamlit.script_request_queue import RerunData
 
 import time
 import random
@@ -121,7 +122,7 @@ reset_button = st.sidebar.button("Reset")
 graph_alerts_cell = st.sidebar.empty()
 
 #### Define the reset button
-if reset_button:
+if reset_button: 
     state.key = state.key + 1
     state.country = streamlit_ui.default_country
     state.county = streamlit_ui.default_county
