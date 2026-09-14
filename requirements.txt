@@ -54,7 +54,7 @@ Pillow==8.1.1
 pre-commit==2.2.0
 prometheus-client==0.7.1
 prompt-toolkit==3.0.5
-protobuf==3.11.3
+protobuf==3.18.3
 ptyprocess==0.6.0
 pydeck==0.3.0b4
 Pygments==2.6.1
